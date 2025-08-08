@@ -16,7 +16,7 @@ const AuthPage = () => {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("token") !== "undefined") {
+    if (localStorage.getItem("token")) {
       navigate("/dashboard");
     }
   }, []);
