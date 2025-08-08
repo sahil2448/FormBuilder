@@ -15,9 +15,12 @@ module.exports.Signup = async (req, res, next) => {
       withCredentials: true,
       httpOnly: false,
     });
-    res
-      .status(201)
-      .json({ message: "User signed in successfully", success: true, user });
+    res.status(201).json({
+      message: "User signed in successfully",
+      success: true,
+      user,
+      token,
+    });
     next();
   } catch (error) {
     console.error(error);
@@ -45,7 +48,7 @@ module.exports.Login = async (req, res, next) => {
     });
     res
       .status(201)
-      .json({ message: "User logged in successfully", success: true });
+      .json({ message: "User logged in successfully", success: true, token });
     next();
   } catch (error) {
     console.error(error);
