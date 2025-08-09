@@ -104,9 +104,107 @@ Content-Type: application/json
 {}
 
 
-
 ### getPublic form
 @shareableLink = aef925e2-9d76-4a05-8213-964804b8384c
 ### Get Published Form (Public Preview)
 GET http://localhost:4000/forms/public/{{shareableLink}}
 Content-Type: application/json
+
+
+# ----------------------------------Continuing with question apis
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@formId = 68971f2b5edcdf803d93121e
+
+### Create Categorize Question
+POST http://localhost:4000/questions
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "questionType": "categorize",
+  "formId": "{{formId}}",
+  "questionText": "Categorize these animals.",
+  "points": 5,
+  "categories": [
+    { "categoryName": "Mammal", "categoryId": "cat1" },
+    { "categoryName": "Bird", "categoryId": "cat2" }
+  ],
+  "items": [
+    { "itemText": "Dog", "itemId": "item1", "correctCategory": "cat1" },
+    { "itemText": "Eagle", "itemId": "item2", "correctCategory": "cat2" }
+  ],
+  "instructions": "Put each animal in the correct category."
+}
+
+
+### Get Questions for Form
+
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@formId = 68971f2b5edcdf803d93121e
+GET http://localhost:4000/questions/form/{{formId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### get Question by Id
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@questionId  = 68972dcea4b11b59c3fcc053
+### Get Question by ID
+GET http://localhost:4000/questions/{{questionId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+
+
+### Update Question by ID
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@questionId  = 68972dcea4b11b59c3fcc053
+PUT http://localhost:4000/questions/{{questionId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "questionType": "categorize",
+  "questionText": "Update: Categorize these Indian animals.",
+  "points": 8,
+  "instructions": "Re-categorize animals as per latest taxonomy."
+  // Add or override other fields as required
+}
+
+### Delete Question by ID
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@questionId  = 68972dcea4b11b59c3fcc053
+DELETE http://localhost:4000/questions/{{questionId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### Get Questions by Type
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+GET http://localhost:4000/questions/type/categorize
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+
+### Reorder Questions for a Form
+
+# @authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+# @formId = 68971f2b5edcdf803d93121e
+
+# PATCH http://localhost:4000/questions/reorder
+# Authorization: Bearer {{authToken}}
+# Content-Type: application/json
+
+# {
+#   "formId": "{{formId}}",
+#   "questionOrders": [
+#     { "questionId": "64a1b2c3d4e5f6789aaa1111", "newOrder": 2 },
+#     { "questionId": "64a1b2c3d4e5f6789aaa2222", "newOrder": 1 },
+#     { "questionId": "64a1b2c3d4e5f6789aaa3333", "newOrder": 3 }
+#   ]
+# }
+
+
+
