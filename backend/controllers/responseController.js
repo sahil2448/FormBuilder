@@ -267,7 +267,7 @@ const checkCategorizeAnswer = (question, answer) => {
     }
   }
   return true;
-};
+};s
 
 const checkClozeAnswer = (question, answer) => {
   for (const blankAnswer of answer.blankAnswers) {

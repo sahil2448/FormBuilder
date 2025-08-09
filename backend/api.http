@@ -207,4 +207,62 @@ Content-Type: application/json
 # }
 
 
+# ------------------------------------------Response apis
+@shareableLink = aef925e2-9d76-4a05-8213-964804b8384c
+### Submit Form Response
+POST http://localhost:4000/responses/submit/{{shareableLink}}
+Content-Type: application/json
 
+{
+  "respondentName": "Test User",
+  "respondentEmail": "testuser@email.com",
+  "completionTime": 320,
+  "answers": [
+    {
+      "questionId": "68972dcea4b11b59c3fcc053",
+      "questionType": "categorize",
+      "answer": {
+        "itemPlacements": [
+          { "itemId": "item1", "categoryId": "cat1" },
+          { "itemId": "item2", "categoryId": "cat2" }
+        ]
+      },
+      "timeSpent": 100
+    },
+    
+  ]
+}
+
+### Get All Responses for a Form
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@formId = 68971f2b5edcdf803d93121e
+
+GET http://localhost:4000/responses/form/{{formId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### Get Response by ID
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@responseId = 689738f4db80d83bd8d7da9f
+GET http://localhost:4000/responses/{{responseId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### Delete Response by ID
+
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@responseId = 689738f4db80d83bd8d7da9f
+DELETE http://localhost:4000/responses/{{responseId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### Get Response Statistics for Form
+
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@formId = 68971f2b5edcdf803d93121e
+GET http://localhost:4000/responses/form/{{formId}}/stats
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
