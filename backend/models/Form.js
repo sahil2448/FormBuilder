@@ -1,4 +1,5 @@
-// models/Form.js
+const { default: mongoose } = require("mongoose");
+
 const formSchema = new mongoose.Schema(
   {
     title: {
@@ -43,3 +44,7 @@ const formSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+const Form = mongoose.model("Form", formSchema);
+
+module.exports = Form;

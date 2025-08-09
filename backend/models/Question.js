@@ -1,7 +1,5 @@
-// models/Question.js
 const mongoose = require("mongoose");
 
-// Base Question Schema
 const baseQuestionSchema = new mongoose.Schema(
   {
     questionText: {
@@ -38,10 +36,8 @@ const baseQuestionSchema = new mongoose.Schema(
   }
 );
 
-// Create base Question model
 const Question = mongoose.model("Question", baseQuestionSchema);
 
-// 1. Categorize Schema
 const categorizeSchema = new mongoose.Schema({
   categories: [
     {
@@ -83,7 +79,6 @@ const categorizeSchema = new mongoose.Schema({
   },
 });
 
-// 2. Cloze Schema
 const clozeSchema = new mongoose.Schema({
   passage: {
     type: String,
@@ -176,7 +171,6 @@ const comprehensionSchema = new mongoose.Schema({
   },
 });
 
-// Create discriminator models
 const CategorizeQuestion = Question.discriminator(
   "categorize",
   categorizeSchema
@@ -187,7 +181,6 @@ const ComprehensionQuestion = Question.discriminator(
   comprehensionSchema
 );
 
-// Export all models
 module.exports = {
   Question,
   CategorizeQuestion,

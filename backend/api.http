@@ -1,0 +1,112 @@
+
+
+### Login
+
+POST http://localhost:4000/login
+Content-Type: application/json
+
+{
+    "email":"ramesh@gmail.com",
+    "password":"ramesh"
+}
+
+### Create Form1
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+POST http://localhost:4000/forms
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Sample Quiz Form",
+  "description": "This is a test form with multiple question types",
+  "headerImage": "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+  "settings": {
+    "allowAnonymous": true,
+    "collectEmail": false,
+    "showResults": true
+  }
+}
+
+### Create Form2
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+POST http://localhost:4000/forms
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Test Form",
+  "description": "This is a test form with multiple question types",
+  "headerImage": "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+  "settings": {
+    "allowAnonymous": true,
+    "collectEmail": false,
+    "showResults": true
+  }
+}
+
+
+
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczNDQyMCwiZXhwIjoxNzU0OTkzNjIwfQ.EqsJaNVXperjZjaRQqLhKS9goMhaDcWVTYJv5rP4XPs
+
+### Get All Forms (Dashboard List)
+GET http://localhost:4000/forms
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### Get Form by ID
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@formId = 68971f2b5edcdf803d93121e
+GET http://localhost:4000/forms/{{formId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+
+
+
+### Update Form by ID
+
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@formId = 68971f2b5edcdf803d93121e
+PUT http://localhost:4000/forms/{{formId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated Quiz Title",
+  "description": "Revised quiz description goes here.",
+  "headerImage": "https://res.cloudinary.com/demo/image/upload/other.jpg",
+  "settings": {
+    "allowAnonymous": false,
+    "collectEmail": true,
+    "showResults": true
+  }
+}
+
+
+### Delete Form by ID
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@formId = 68971d835edcdf803d931219
+### Delete Form by ID
+DELETE http://localhost:4000/forms/{{formId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### Publish Form by ID
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTVmZTQ4Yzk0ODY2OTM0M2M2NjBlOCIsImlhdCI6MTc1NDczMzc0OCwiZXhwIjoxNzU0OTkyOTQ4fQ.eAvxpRNztjKWGPfTQQx7oLdPNeZHPqbhfV5I9PxWwPw
+@formId = 68971f2b5edcdf803d93121e
+PATCH http://localhost:4000/forms/{{formId}}/publish
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{}
+
+
+
+### getPublic form
+@shareableLink = aef925e2-9d76-4a05-8213-964804b8384c
+### Get Published Form (Public Preview)
+GET http://localhost:4000/forms/public/{{shareableLink}}
+Content-Type: application/json
