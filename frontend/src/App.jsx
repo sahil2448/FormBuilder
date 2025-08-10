@@ -1,10 +1,10 @@
 import React from "react";
-
 import "./App.css";
 import Navbar from "./components/Navbar";
 import { Route, Routes } from "react-router-dom";
 import SignIn from "./pages/AuthPage";
-import Dashboard from "./pages/Dashboard";
+import DashboardPage from "./pages/DashboardPage";
+import FormEditor from "./components/FormEditor/FormEditor";
 
 function App() {
   return (
@@ -12,7 +12,8 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/login" element={<SignIn />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/form/edit/:formId" element={<FormEditor />} />
       </Routes>
     </div>
   );

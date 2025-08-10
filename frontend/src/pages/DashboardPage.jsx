@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Dashboard from "../components/dashboad/Dashboard";
 
-function Dashboard() {
+function DashboardPage() {
   const navigate = useNavigate();
   useEffect(() => {
     if (!localStorage.getItem("token")) {
@@ -10,9 +11,9 @@ function Dashboard() {
   }, []);
   return (
     <div>
-      <p>Dashboard page</p>
+      <Dashboard />
     </div>
   );
 }
 
-export default Dashboard;
+export default DashboardPage;
