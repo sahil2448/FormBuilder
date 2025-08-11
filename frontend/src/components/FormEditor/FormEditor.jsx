@@ -96,11 +96,20 @@ const FormEditor = () => {
     }
   };
 
-  const handleUpdateQuestion = async (questionId, questionData) => {
+  // Update question
+  const handleUpdateQuestion = async (questionId, questionDataOrUpdated) => {
+    // If passed updated question object directly from editor:
+    if (questionDataOrUpdated && questionDataOrUpdated._id) {
+      setQuestions((prev) =>
+        prev.map((q) => (q._id === questionId ? questionDataOrUpdated : q))
+      );
+      return;
+    }
+    // Else use API (kept here for compatibility)
     try {
       const response = await questionService.updateQuestion(
         questionId,
-        questionData
+        questionDataOrUpdated
       );
       if (response.success) {
         setQuestions((prev) =>
