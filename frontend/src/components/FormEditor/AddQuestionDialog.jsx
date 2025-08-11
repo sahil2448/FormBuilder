@@ -20,7 +20,7 @@ const QUESTION_TYPES = [
   { value: "comprehension", label: "Comprehension" },
 ];
 
-const AddQuestionDialog = ({ open, onClose, onSubmit }) => {
+const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
   const [questionType, setQuestionType] = useState("");
   const [questionText, setQuestionText] = useState("");
   const [points, setPoints] = useState(1);
@@ -36,6 +36,8 @@ const AddQuestionDialog = ({ open, onClose, onSubmit }) => {
     }
   }, [open]);
 
+  // Inside AddQuestionDialog.jsx
+
   const handleSubmit = async () => {
     if (!questionType || !questionText.trim()) {
       setError("Please fill in all required fields");
@@ -46,30 +48,131 @@ const AddQuestionDialog = ({ open, onClose, onSubmit }) => {
       setLoading(true);
       setError("");
 
-      const questionData = {
+      const base = {
         questionType,
         questionText: questionText.trim(),
-        points: parseInt(points),
-        order: 1,
+        points: parseInt(points) || 1,
+        // order will be set by server based on form.questions length
       };
 
+      let questionData = { ...base };
+
       switch (questionType) {
-        case "categorize":
-          questionData.categories = [];
-          questionData.items = [];
-          questionData.instructions = "";
+        case "categorize": {
+          // correctCategory is required in your schema; set to a real categoryId
+          const catA = "cat-a";
+          const catB = "cat-b";
+          questionData = {
+            ...base,
+            instructions: "Drag and drop items into the correct categories",
+            categories: [
+              { categoryName: "Category A", categoryId: catA },
+              { categoryName: "Category B", categoryId: catB },
+            ],
+            items: [
+              {
+                itemText: "Item 1",
+                itemId: "item-1",
+                correctCategory: catA,
+                itemImage: null,
+              },
+              {
+                itemText: "Item 2",
+                itemId: "item-2",
+                correctCategory: catB,
+                itemImage: null,
+              },
+            ],
+          };
           break;
-        case "cloze":
-          questionData.blanks = [];
+        }
+
+        case "cloze": {
+          // Your schema requires: passage, blanks[].position (Number), inputType, options (for dropdown), correctAnswer, placeholder
+          questionData = {
+            ...base,
+            instructions: "Fill in the blanks with the correct answers",
+            passage:
+              "The capital of France is [[blank-1]] and the capital of Japan is [[blank-2]].",
+            blanks: [
+              {
+                blankId: "blank-1",
+                position: 0, // first blank
+                inputType: "dropdown",
+                options: [
+                  { optionText: "Paris", isCorrect: true },
+                  { optionText: "Lyon", isCorrect: false },
+                  { optionText: "Marseille", isCorrect: false },
+                ],
+                correctAnswer: "Paris",
+                placeholder: "Select city",
+              },
+              {
+                blankId: "blank-2",
+                position: 1, // second blank
+                inputType: "text", // no options needed for text
+                options: [],
+                correctAnswer: "Tokyo",
+                placeholder: "Type city",
+              },
+            ],
+          };
           break;
-        case "comprehension":
-          questionData.passage = "";
-          questionData.options = [];
-          questionData.correctAnswers = [];
+        }
+
+        case "comprehension": {
+          // Your schema requires: passage (required), subQuestions with required fields
+          // questionType in subQuestions is per sub (mcq | short-answer | true-false)
+          questionData = {
+            ...base,
+            instructions:
+              "Read the passage carefully and answer the questions below",
+            passage:
+              "The Earth revolves around the Sun. A year is the time it takes for one complete revolution.",
+            passageImage: null,
+            subQuestions: [
+              {
+                subQuestionId: "sq-1",
+                questionText: "What does the Earth revolve around?",
+                questionType: "mcq",
+                options: [
+                  { optionText: "The Moon", isCorrect: false },
+                  { optionText: "The Sun", isCorrect: true },
+                  { optionText: "Mars", isCorrect: false },
+                ],
+                correctAnswer: "The Sun",
+                points: 1,
+              },
+              {
+                subQuestionId: "sq-2",
+                questionText:
+                  "True or False: One year is the time Earth takes to revolve around the Sun.",
+                questionType: "true-false",
+                options: [
+                  { optionText: "True", isCorrect: true },
+                  { optionText: "False", isCorrect: false },
+                ],
+                correctAnswer: "True",
+                points: 1,
+              },
+              {
+                subQuestionId: "sq-3",
+                questionText: "Name the planet we live on.",
+                questionType: "short-answer",
+                options: [],
+                correctAnswer: "Earth",
+                points: 1,
+              },
+            ],
+          };
+          break;
+        }
+        default:
           break;
       }
 
-      await onSubmit(questionData);
+      // IMPORTANT: include formId in create payload
+      await onSubmit({ ...questionData, formId });
     } catch (err) {
       setError(err.message || "Failed to create question");
     } finally {

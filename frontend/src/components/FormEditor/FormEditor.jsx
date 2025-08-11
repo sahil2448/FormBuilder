@@ -193,6 +193,7 @@ const FormEditor = () => {
         open={addQuestionOpen}
         onClose={() => setAddQuestionOpen(false)}
         onSubmit={handleAddQuestion}
+        formId={formId}
       />
     </Container>
   );

@@ -1,12 +1,10 @@
 import React from "react";
 import CategorizeQuestion from "./QuestionTypes/CategorizeQuestion";
+import ClozeQuestion from "./QuestionTypes/ClozeQuestion";
+import ComprehensionQuestion from "./QuestionTypes/ComprehensionQuestion";
 import { questionService } from "../../services/questionService";
 
 export default function QuestionEditor({ question, onSaved, onDeleted }) {
-  if (question.questionType !== "categorize") {
-    return <div>Unsupported question type in this editor for now.</div>;
-  }
-
   const handleSave = async (payload) => {
     const res = await questionService.updateQuestion(question._id, payload);
     if (res.success) onSaved?.(res.data);
@@ -19,11 +17,32 @@ export default function QuestionEditor({ question, onSaved, onDeleted }) {
     else throw new Error(res.error || "Failed to delete question");
   };
 
-  return (
-    <CategorizeQuestion
-      initialQuestion={question}
-      onSave={handleSave}
-      onDelete={handleDelete}
-    />
-  );
+  switch (question.questionType) {
+    case "categorize":
+      return (
+        <CategorizeQuestion
+          initialQuestion={question}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+      );
+    case "cloze":
+      return (
+        <ClozeQuestion
+          initialQuestion={question}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+      );
+    case "comprehension":
+      return (
+        <ComprehensionQuestion
+          initialQuestion={question}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+      );
+    default:
+      return <div>Unsupported question type in this editor.</div>;
+  }
 }
