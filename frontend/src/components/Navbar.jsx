@@ -15,21 +15,18 @@ export default function Navbar() {
   React.useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) setIsLoggedIn(true);
-  }, []);
+  }, [isLoggedIn]);
 
   React.useEffect(() => {
     const handleStorageChange = () => {
       const token = localStorage.getItem("token");
-      if (token) {
-        setIsLoggedIn(true);
-      }
-      // setIsLoggedIn(!!token);
+      setIsLoggedIn(!!token);
     };
     window.addEventListener("storage", handleStorageChange);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, [isLoggedIn]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
