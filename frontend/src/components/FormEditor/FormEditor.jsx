@@ -125,7 +125,7 @@ const FormEditor = () => {
   if (!form) return <Alert severity="error">Form not found</Alert>;
 
   return (
-    <Container maxWidth="lg" className="py-6">
+    <Container maxWidth="lg" className="py-6 ">
       <Box className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <IconButton onClick={() => navigate("/dashboard")}>

@@ -10,7 +10,7 @@ import FormPlayer from "./components/FormPlayer/FormPlayer";
 
 function App() {
   return (
-    <div>
+    <div className="bg-gray-100 ">
       <Navbar />
       <Routes>
         <Route path="/login" element={<SignIn />} />

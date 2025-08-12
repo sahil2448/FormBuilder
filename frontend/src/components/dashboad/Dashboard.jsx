@@ -73,7 +73,7 @@ const Dashboard = () => {
   }
 
   return (
-    <Container maxWidth="lg" className="py-8">
+    <Container maxWidth="lg" className="py-8 ">
       <Box className="flex justify-between items-center mb-6">
         <Typography variant="h4" className="font-bold text-gray-800">
           My Forms
