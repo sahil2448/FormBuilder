@@ -5,7 +5,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:4000",
+        // target: "http://localhost:4000", // development
+        target: "https://formbuilder-qpp8.onrender.com/", // prod
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
