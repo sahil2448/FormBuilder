@@ -7,12 +7,14 @@ import DashboardPage from "./pages/DashboardPage";
 import FormEditor from "./components/FormEditor/FormEditor";
 import FormPreview from "./components/FornPreview/FormPreview";
 import FormPlayer from "./components/FormPlayer/FormPlayer";
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
     <div className="bg-gray-100 ">
       <Navbar />
       <Routes>
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<SignIn />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/form/edit/:formId" element={<FormEditor />} />

@@ -25,11 +25,22 @@ import {
   IconButton,
   Divider,
   Alert,
+  Paper,
+  Chip,
+  Tooltip,
+  Fade,
 } from "@mui/material";
-import { Add, Delete, Save } from "@mui/icons-material";
+import {
+  Add,
+  Delete,
+  Save,
+  Category,
+  DragIndicator,
+  Edit,
+} from "@mui/icons-material";
 
-// Sortable item card
-function SortableCard({ id, item }) {
+// Enhanced Sortable item card
+function SortableCard({ id, item, onEdit, onDelete }) {
   const {
     attributes,
     listeners,
@@ -42,93 +53,305 @@ function SortableCard({ id, item }) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.7 : 1,
+    zIndex: isDragging ? 1000 : 1,
   };
 
   return (
     <div ref={setNodeRef} style={style}>
       <Card
         variant="outlined"
-        sx={{ mb: 1, p: 1, borderStyle: "dashed" }}
+        sx={{
+          mb: 1,
+          p: 1.5,
+          borderStyle: "solid",
+          borderColor: isDragging ? "primary.main" : "grey.300",
+          backgroundColor: isDragging ? "primary.50" : "white",
+          cursor: "grab",
+          "&:hover": {
+            borderColor: "primary.main",
+            boxShadow: 2,
+            transform: "translateY(-1px)",
+          },
+          transition: "all 0.2s ease-in-out",
+          borderRadius: 2,
+        }}
         {...attributes}
         {...listeners}
       >
-        <Typography variant="body2">{item.itemText}</Typography>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box display="flex" alignItems="center" gap={1}>
+            <DragIndicator sx={{ color: "grey.400", fontSize: 16 }} />
+            <Typography variant="body2" fontWeight="500">
+              {item.itemText}
+            </Typography>
+          </Box>
+          <Box display="flex" gap={0.5}>
+            <Tooltip title="Edit item">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit?.(item.itemId);
+                }}
+                sx={{ opacity: 0.7, "&:hover": { opacity: 1 } }}
+              >
+                <Edit fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete item">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete?.(item.itemId);
+                }}
+                sx={{
+                  opacity: 0.7,
+                  "&:hover": { opacity: 1, color: "error.main" },
+                }}
+              >
+                <Delete fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
       </Card>
     </div>
   );
 }
 
-function SortableItemList({ items }) {
+function SortableItemList({ items, onEditItem, onDeleteItem }) {
   const ids = items.map((i) => i.itemId);
   return (
     <SortableContext items={ids} strategy={rectSortingStrategy}>
       {items.map((it) => (
-        <SortableCard key={it.itemId} id={it.itemId} item={it} />
+        <SortableCard
+          key={it.itemId}
+          id={it.itemId}
+          item={it}
+          onEdit={onEditItem}
+          onDelete={onDeleteItem}
+        />
       ))}
     </SortableContext>
   );
 }
 
-function CategoryColumn({ category, children, onAddItem, onDeleteCategory }) {
+function CategoryColumn({
+  category,
+  children,
+  onAddItem,
+  onDeleteCategory,
+  itemCount,
+}) {
   return (
-    <Card variant="outlined" sx={{ minWidth: 260, backgroundColor: "white" }}>
-      <CardContent>
-        <Box className="flex items-center justify-between mb-2">
-          <TextField
-            label="Category Name"
-            size="small"
-            value={category.categoryName}
-            onChange={(e) => category.onRename(e.target.value)}
-          />
-          <IconButton
-            size="small"
-            onClick={() => onDeleteCategory(category.categoryId)}
-          >
-            <Delete fontSize="small" />
-          </IconButton>
+    <Paper
+      elevation={3}
+      sx={{
+        minWidth: 280,
+        backgroundColor: "white",
+        borderRadius: 3,
+        border: "2px solid",
+        borderColor: "primary.100",
+        "&:hover": {
+          borderColor: "primary.300",
+          boxShadow: 4,
+        },
+        transition: "all 0.3s ease-in-out",
+      }}
+    >
+      <CardContent sx={{ p: 2.5 }}>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
+          <Box display="flex" alignItems="center" gap={1} flex={1}>
+            <Category sx={{ color: "primary.main", fontSize: 20 }} />
+            <TextField
+              size="small"
+              variant="outlined"
+              value={category.categoryName}
+              onChange={(e) => category.onRename(e.target.value)}
+              sx={{
+                flex: 1,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  fontWeight: "600",
+                },
+              }}
+            />
+          </Box>
+          <Tooltip title="Delete category">
+            <IconButton
+              size="small"
+              onClick={() => onDeleteCategory(category.categoryId)}
+              sx={{
+                color: "error.main",
+                "&:hover": { backgroundColor: "error.50" },
+              }}
+            >
+              <Delete fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Box>
+
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
+          <Chip
+            size="small"
+            label={`${itemCount} items`}
+            sx={{
+              backgroundColor: "primary.100",
+              color: "primary.800",
+              fontWeight: "bold",
+            }}
+          />
+        </Box>
+
         <Divider sx={{ mb: 2 }} />
-        <Box sx={{ minHeight: 120 }}>{children}</Box>
-        <Box className="mt-3">
+
+        <Box
+          sx={{
+            minHeight: 140,
+            backgroundColor: "grey.50",
+            borderRadius: 2,
+            p: 1,
+            border: "2px dashed",
+            borderColor: "grey.300",
+          }}
+        >
+          {children}
+        </Box>
+
+        <Box mt={2}>
           <Button
             size="small"
             variant="outlined"
+            fullWidth
             onClick={() => onAddItem(category.categoryId)}
+            startIcon={<Add />}
+            sx={{
+              borderRadius: 2,
+              fontWeight: "600",
+              "&:hover": { backgroundColor: "primary.50" },
+            }}
           >
             Add Item
           </Button>
         </Box>
       </CardContent>
-    </Card>
+    </Paper>
   );
 }
 
-function PoolColumn({ children, onAddItem }) {
+function PoolColumn({ children, onAddItem, itemCount }) {
   return (
-    <Card variant="outlined" sx={{ minWidth: 260, backgroundColor: "white" }}>
-      <CardContent>
-        <Typography variant="subtitle1" fontWeight="600" className="mb-2">
-          Unassigned Items
-        </Typography>
+    <Paper
+      elevation={3}
+      sx={{
+        minWidth: 280,
+        backgroundColor: "white",
+        borderRadius: 3,
+        border: "2px solid",
+        borderColor: "warning.200",
+        "&:hover": {
+          borderColor: "warning.400",
+          boxShadow: 4,
+        },
+        transition: "all 0.3s ease-in-out",
+      }}
+    >
+      <CardContent sx={{ p: 2.5 }}>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
+          <Box display="flex" alignItems="center" gap={1}>
+            <Box
+              sx={{
+                width: 20,
+                height: 20,
+                borderRadius: "50%",
+                backgroundColor: "warning.main",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Typography variant="caption" color="white" fontWeight="bold">
+                ?
+              </Typography>
+            </Box>
+            <Typography
+              variant="subtitle1"
+              fontWeight="700"
+              color="warning.800"
+            >
+              Unassigned Items
+            </Typography>
+          </Box>
+          <Chip
+            size="small"
+            label={`${itemCount} items`}
+            sx={{
+              backgroundColor: "warning.100",
+              color: "warning.800",
+              fontWeight: "bold",
+            }}
+          />
+        </Box>
+
         <Divider sx={{ mb: 2 }} />
-        <Box sx={{ minHeight: 120 }}>{children}</Box>
-        <Box className="mt-3">
+
+        <Box
+          sx={{
+            minHeight: 140,
+            backgroundColor: "warning.50",
+            borderRadius: 2,
+            p: 1,
+            border: "2px dashed",
+            borderColor: "warning.300",
+          }}
+        >
+          {children}
+        </Box>
+
+        <Box mt={2}>
           <Button
             size="small"
             variant="outlined"
+            fullWidth
             onClick={() => onAddItem(null)}
+            startIcon={<Add />}
+            sx={{
+              borderRadius: 2,
+              fontWeight: "600",
+              borderColor: "warning.main",
+              color: "warning.main",
+              "&:hover": {
+                backgroundColor: "warning.50",
+                borderColor: "warning.dark",
+              },
+            }}
           >
             Add Item
           </Button>
         </Box>
       </CardContent>
-    </Card>
+    </Paper>
   );
 }
 
 export default function CategorizeQuestion({
-  // Provide the question from backend when editing; fallback to template for new
   initialQuestion = {
     questionType: "categorize",
     questionText: "Categorize the items.",
@@ -144,8 +367,8 @@ export default function CategorizeQuestion({
       { itemText: "Item 3", itemId: "item-3", correctCategory: null },
     ],
   },
-  onSave, // async (payload) => {}
-  onDelete, // async () => {}
+  onSave,
+  onDelete,
 }) {
   const [questionText, setQuestionText] = useState(
     initialQuestion.questionText || ""
@@ -241,7 +464,6 @@ export default function CategorizeQuestion({
     );
   };
 
-  // Item ops
   const addItem = (categoryIdOrNull) => {
     const newId = `item-${Math.random().toString(36).slice(2, 8)}`;
     setItems((prev) => [
@@ -256,6 +478,17 @@ export default function CategorizeQuestion({
 
   const deleteItem = (itemId) => {
     setItems((prev) => prev.filter((it) => it.itemId !== itemId));
+  };
+
+  const editItem = (itemId) => {
+    const newText = prompt("Enter new item text:");
+    if (newText && newText.trim()) {
+      setItems((prev) =>
+        prev.map((it) =>
+          it.itemId === itemId ? { ...it, itemText: newText.trim() } : it
+        )
+      );
+    }
   };
 
   const validate = () => {
@@ -289,45 +522,120 @@ export default function CategorizeQuestion({
   };
 
   return (
-    <Box className="space-y-4">
-      {error && <Alert severity="error">{error}</Alert>}
+    <Paper
+      elevation={2}
+      sx={{ p: 3, borderRadius: 3, backgroundColor: "#fafafa" }}
+    >
+      <Box display="flex" alignItems="center" gap={1} mb={3}>
+        <Category sx={{ color: "primary.main", fontSize: 28 }} />
+        <Typography variant="h6" fontWeight="bold" color="primary.main">
+          Categorize Question Editor
+        </Typography>
+      </Box>
 
-      <TextField
-        label="Question Text"
-        fullWidth
-        multiline
-        rows={2}
-        value={questionText}
-        onChange={(e) => setQuestionText(e.target.value)}
-      />
-      <Box className="flex gap-4">
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 4 }}>
+        <Fade in={!!error}>
+          <Box>
+            {error && (
+              <Alert
+                severity="error"
+                sx={{ borderRadius: 2 }}
+                onClose={() => setError("")}
+              >
+                {error}
+              </Alert>
+            )}
+          </Box>
+        </Fade>
+
         <TextField
-          label="Points"
-          type="number"
-          sx={{ maxWidth: 140 }}
-          value={points}
-          onChange={(e) => setPoints(e.target.value)}
-          inputProps={{ min: 1 }}
-        />
-        <TextField
-          label="Instructions"
+          label="Question Text"
           fullWidth
-          value={instructions}
-          onChange={(e) => setInstructions(e.target.value)}
+          multiline
+          rows={3}
+          value={questionText}
+          onChange={(e) => setQuestionText(e.target.value)}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+            },
+          }}
         />
+
+        <Box display="flex" gap={2}>
+          <TextField
+            label="Points"
+            type="number"
+            sx={{ maxWidth: 150 }}
+            value={points}
+            onChange={(e) => setPoints(e.target.value)}
+            inputProps={{ min: 1 }}
+            InputProps={{
+              sx: { borderRadius: 2 },
+            }}
+          />
+          <TextField
+            label="Instructions"
+            fullWidth
+            value={instructions}
+            onChange={(e) => setInstructions(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+              },
+            }}
+          />
+        </Box>
+
+        <Box display="flex" flexWrap="wrap" gap={2}>
+          <Button
+            variant="outlined"
+            onClick={addCategory}
+            startIcon={<Add />}
+            sx={{
+              borderRadius: 2,
+              fontWeight: "600",
+              px: 3,
+            }}
+          >
+            Add Category
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSave}
+            startIcon={<Save />}
+            sx={{
+              borderRadius: 2,
+              fontWeight: "600",
+              px: 3,
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              "&:hover": {
+                background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+              },
+            }}
+          >
+            Save Question
+          </Button>
+          <Button
+            color="error"
+            onClick={onDelete}
+            startIcon={<Delete />}
+            sx={{
+              borderRadius: 2,
+              fontWeight: "600",
+              px: 3,
+            }}
+          >
+            Delete Question
+          </Button>
+        </Box>
       </Box>
 
-      <Box className="flex items-center gap-2">
-        <Button variant="outlined" onClick={addCategory} startIcon={<Add />}>
-          Add Category
-        </Button>
-        <Button variant="contained" onClick={handleSave} startIcon={<Save />}>
-          Save Question
-        </Button>
-        <Button color="error" onClick={onDelete} startIcon={<Delete />}>
-          Delete Question
-        </Button>
-      </Box>
+      <Divider sx={{ mb: 3 }} />
+
+      <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
+        📋 Drag & Drop Editor
+      </Typography>
 
       <DndContext
         sensors={sensors}
@@ -336,39 +644,41 @@ export default function CategorizeQuestion({
         onDragEnd={handleDragEnd}
         modifiers={[restrictToFirstScrollableAncestor]}
       >
-        <Box className="flex gap-4 overflow-x-auto" sx={{ py: 1 }}>
-          <Box id="pool" sx={{ flex: "0 0 auto" }}>
-            <PoolColumn onAddItem={addItem}>
-              <SortableItemList items={itemsByContainer["pool"] || []} />
-              {itemsByContainer["pool"]?.length > 0 && (
-                <Box mt={1}>
-                  {itemsByContainer["pool"].map((it) => (
-                    <Box
-                      key={`pool-del-${it.itemId}`}
-                      className="flex items-center justify-between"
-                    >
-                      <Typography variant="caption" color="text.secondary">
-                        {it.itemText}
-                      </Typography>
-                      <IconButton
-                        size="small"
-                        onClick={() => deleteItem(it.itemId)}
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  ))}
-                </Box>
-              )}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 3,
+            overflowX: "auto",
+            py: 2,
+            px: 1,
+            "&::-webkit-scrollbar": {
+              height: 8,
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#f1f1f1",
+              borderRadius: 4,
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#c1c1c1",
+              borderRadius: 4,
+            },
+          }}
+        >
+          <Box sx={{ flex: "0 0 auto" }}>
+            <PoolColumn
+              onAddItem={addItem}
+              itemCount={itemsByContainer["pool"]?.length || 0}
+            >
+              <SortableItemList
+                items={itemsByContainer["pool"] || []}
+                onEditItem={editItem}
+                onDeleteItem={deleteItem}
+              />
             </PoolColumn>
           </Box>
 
           {categories.map((cat) => (
-            <Box
-              id={cat.categoryId}
-              key={cat.categoryId}
-              sx={{ flex: "0 0 auto" }}
-            >
+            <Box key={cat.categoryId} sx={{ flex: "0 0 auto" }}>
               <CategoryColumn
                 category={{
                   ...cat,
@@ -376,30 +686,13 @@ export default function CategorizeQuestion({
                 }}
                 onAddItem={addItem}
                 onDeleteCategory={deleteCategory}
+                itemCount={itemsByContainer[cat.categoryId]?.length || 0}
               >
                 <SortableItemList
                   items={itemsByContainer[cat.categoryId] || []}
+                  onEditItem={editItem}
+                  onDeleteItem={deleteItem}
                 />
-                {itemsByContainer[cat.categoryId]?.length > 0 && (
-                  <Box mt={1}>
-                    {itemsByContainer[cat.categoryId].map((it) => (
-                      <Box
-                        key={`cat-del-${it.itemId}`}
-                        className="flex items-center justify-between"
-                      >
-                        <Typography variant="caption" color="text.secondary">
-                          {it.itemText}
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() => deleteItem(it.itemId)}
-                        >
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    ))}
-                  </Box>
-                )}
               </CategoryColumn>
             </Box>
           ))}
@@ -407,12 +700,23 @@ export default function CategorizeQuestion({
 
         <DragOverlay>
           {activeItem ? (
-            <Card variant="outlined" sx={{ p: 1, background: "white" }}>
-              <Typography variant="body2">{activeItem.itemText}</Typography>
+            <Card
+              variant="outlined"
+              sx={{
+                p: 1.5,
+                background: "white",
+                borderRadius: 2,
+                boxShadow: 4,
+                borderColor: "primary.main",
+              }}
+            >
+              <Typography variant="body2" fontWeight="500">
+                {activeItem.itemText}
+              </Typography>
             </Card>
           ) : null}
         </DragOverlay>
       </DndContext>
-    </Box>
+    </Paper>
   );
 }

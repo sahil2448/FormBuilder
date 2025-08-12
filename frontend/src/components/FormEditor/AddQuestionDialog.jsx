@@ -12,12 +12,44 @@ import {
   TextField,
   Box,
   Alert,
+  Typography,
+  Chip,
+  Paper,
+  Divider,
+  IconButton,
+  Fade,
+  LinearProgress,
 } from "@mui/material";
+import {
+  Close as CloseIcon,
+  Quiz as QuizIcon,
+  Category as CategoryIcon,
+  Edit as EditIcon,
+  MenuBook as BookIcon,
+} from "@mui/icons-material";
 
 const QUESTION_TYPES = [
-  { value: "categorize", label: "Categorize" },
-  { value: "cloze", label: "Cloze (Fill in the blanks)" },
-  { value: "comprehension", label: "Comprehension" },
+  {
+    value: "categorize",
+    label: "Categorize",
+    description: "Drag & drop items into categories",
+    icon: <CategoryIcon />,
+    color: "#2196f3",
+  },
+  {
+    value: "cloze",
+    label: "Cloze (Fill in the blanks)",
+    description: "Fill blanks in a passage",
+    icon: <EditIcon />,
+    color: "#4caf50",
+  },
+  {
+    value: "comprehension",
+    label: "Comprehension",
+    description: "Answer questions about a passage",
+    icon: <BookIcon />,
+    color: "#ff9800",
+  },
 ];
 
 const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
@@ -36,8 +68,6 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
     }
   }, [open]);
 
-  // Inside AddQuestionDialog.jsx
-
   const handleSubmit = async () => {
     if (!questionType || !questionText.trim()) {
       setError("Please fill in all required fields");
@@ -52,14 +82,12 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
         questionType,
         questionText: questionText.trim(),
         points: parseInt(points) || 1,
-        // order will be set by server based on form.questions length
       };
 
       let questionData = { ...base };
 
       switch (questionType) {
         case "categorize": {
-          // correctCategory is required in your schema; set to a real categoryId
           const catA = "cat-a";
           const catB = "cat-b";
           questionData = {
@@ -88,7 +116,6 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
         }
 
         case "cloze": {
-          // Your schema requires: passage, blanks[].position (Number), inputType, options (for dropdown), correctAnswer, placeholder
           questionData = {
             ...base,
             instructions: "Fill in the blanks with the correct answers",
@@ -97,7 +124,7 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
             blanks: [
               {
                 blankId: "blank-1",
-                position: 0, // first blank
+                position: 0,
                 inputType: "dropdown",
                 options: [
                   { optionText: "Paris", isCorrect: true },
@@ -109,8 +136,8 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
               },
               {
                 blankId: "blank-2",
-                position: 1, // second blank
-                inputType: "text", // no options needed for text
+                position: 1,
+                inputType: "text",
                 options: [],
                 correctAnswer: "Tokyo",
                 placeholder: "Type city",
@@ -121,8 +148,6 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
         }
 
         case "comprehension": {
-          // Your schema requires: passage (required), subQuestions with required fields
-          // questionType in subQuestions is per sub (mcq | short-answer | true-false)
           questionData = {
             ...base,
             instructions:
@@ -171,7 +196,6 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
           break;
       }
 
-      // IMPORTANT: include formId in create payload
       await onSubmit({ ...questionData, formId });
     } catch (err) {
       setError(err.message || "Failed to create question");
@@ -180,59 +204,231 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
     }
   };
 
+  const selectedType = QUESTION_TYPES.find(
+    (type) => type.value === questionType
+  );
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add New Question</DialogTitle>
-      <DialogContent dividers>
-        <Box className="space-y-4">
-          {error && <Alert severity="error">{error}</Alert>}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          maxHeight: "90vh",
+        },
+      }}
+    >
+      {/* Enhanced Dialog Title */}
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          py: 2,
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={1}>
+          <QuizIcon />
+          <Typography variant="h6" fontWeight="bold">
+            Add New Question
+          </Typography>
+        </Box>
+        <IconButton
+          onClick={onClose}
+          disabled={loading}
+          sx={{
+            color: "white",
+            "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
-          <FormControl fullWidth required>
-            <InputLabel>Question Type</InputLabel>
-            <Select
-              value={questionType}
-              onChange={(e) => setQuestionType(e.target.value)}
-              label="Question Type"
-              disabled={loading}
-            >
+      {/* Loading Progress Bar */}
+      {loading && (
+        <LinearProgress
+          sx={{
+            height: 3,
+            "& .MuiLinearProgress-bar": {
+              background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+            },
+          }}
+        />
+      )}
+
+      <DialogContent sx={{ p: 3, backgroundColor: "#fafafa" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {/* Error Alert */}
+          <Fade in={!!error}>
+            <Box>
+              {error && (
+                <Alert
+                  severity="error"
+                  sx={{ borderRadius: 2, mb: 2 }}
+                  onClose={() => setError("")}
+                >
+                  {error}
+                </Alert>
+              )}
+            </Box>
+          </Fade>
+
+          {/* Question Type Selection */}
+          <Paper elevation={2} sx={{ p: 2, borderRadius: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+              Choose Question Type
+            </Typography>
+            <Box display="flex" flexDirection="column" gap={1.5}>
               {QUESTION_TYPES.map((type) => (
-                <MenuItem key={type.value} value={type.value}>
-                  {type.label}
-                </MenuItem>
+                <Paper
+                  key={type.value}
+                  elevation={questionType === type.value ? 4 : 1}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    border:
+                      questionType === type.value
+                        ? `2px solid ${type.color}`
+                        : "2px solid transparent",
+                    backgroundColor:
+                      questionType === type.value ? `${type.color}15` : "white",
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": loading
+                      ? {}
+                      : {
+                          elevation: 3,
+                          transform: "translateY(-1px)",
+                        },
+                  }}
+                  onClick={() => !loading && setQuestionType(type.value)}
+                >
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Box
+                      sx={{
+                        color: type.color,
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: 24,
+                      }}
+                    >
+                      {type.icon}
+                    </Box>
+                    <Box flex={1}>
+                      <Typography variant="subtitle2" fontWeight="bold">
+                        {type.label}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {type.description}
+                      </Typography>
+                    </Box>
+                    {questionType === type.value && (
+                      <Chip
+                        label="Selected"
+                        size="small"
+                        sx={{
+                          backgroundColor: type.color,
+                          color: "white",
+                          fontWeight: "bold",
+                        }}
+                      />
+                    )}
+                  </Box>
+                </Paper>
               ))}
-            </Select>
-          </FormControl>
+            </Box>
+          </Paper>
 
-          <TextField
-            label="Question Text"
-            multiline
-            rows={3}
-            fullWidth
-            required
-            value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
-            disabled={loading}
-          />
+          {/* Question Details */}
+          {selectedType && (
+            <Fade in={!!selectedType}>
+              <Paper elevation={2} sx={{ p: 2, borderRadius: 2 }}>
+                <Box display="flex" alignItems="center" gap={1} mb={2}>
+                  <Box sx={{ color: selectedType.color, fontSize: 20 }}>
+                    {selectedType.icon}
+                  </Box>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Question Details
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 2 }} />
 
-          <TextField
-            label="Points"
-            type="number"
-            fullWidth
-            value={points}
-            onChange={(e) => setPoints(e.target.value)}
-            disabled={loading}
-            inputProps={{ min: 1, max: 100 }}
-          />
+                <Box display="flex" flexDirection="column" gap={2}>
+                  <TextField
+                    label="Question Text"
+                    multiline
+                    rows={4}
+                    fullWidth
+                    required
+                    value={questionText}
+                    onChange={(e) => setQuestionText(e.target.value)}
+                    disabled={loading}
+                    placeholder="Enter your question here..."
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                      },
+                    }}
+                  />
+
+                  <TextField
+                    label="Points"
+                    type="number"
+                    value={points}
+                    onChange={(e) => setPoints(e.target.value)}
+                    disabled={loading}
+                    inputProps={{ min: 1, max: 100 }}
+                    sx={{
+                      maxWidth: 150,
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                      },
+                    }}
+                  />
+                </Box>
+              </Paper>
+            </Fade>
+          )}
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
+
+      <DialogActions
+        sx={{
+          p: 3,
+          backgroundColor: "#f5f5f5",
+          borderTop: "1px solid rgba(0,0,0,0.1)",
+        }}
+      >
+        <Button
+          onClick={onClose}
+          disabled={loading}
+          sx={{ borderRadius: 2, px: 3 }}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={loading || !questionType || !questionText.trim()}
+          sx={{
+            borderRadius: 2,
+            px: 3,
+            fontWeight: "bold",
+            background: selectedType
+              ? `linear-gradient(135deg, ${selectedType.color} 0%, ${selectedType.color}dd 100%)`
+              : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            "&:hover": {
+              background: selectedType
+                ? `linear-gradient(135deg, ${selectedType.color}dd 0%, ${selectedType.color}bb 100%)`
+                : "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+            },
+          }}
         >
           {loading ? "Creating..." : "Create Question"}
         </Button>

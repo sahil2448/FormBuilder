@@ -10,7 +10,20 @@ import {
   CircularProgress,
   Divider,
   Chip,
+  LinearProgress,
+  Tooltip,
+  Fade,
+  Card,
+  CardContent,
 } from "@mui/material";
+import {
+  Quiz,
+  CheckCircle,
+  Timer,
+  Send,
+  Assignment,
+  Lightbulb,
+} from "@mui/icons-material";
 import { responseService } from "../../services/responseService";
 import CategorizeDndPlayer from "./CategorizeDndPlayer";
 import ClozePlayer from "./ClozePlayer";
@@ -54,8 +67,6 @@ export default function FormPlayer() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(null);
   const [startedAt, setStartedAt] = useState(Date.now());
-
-  // answers: { [questionId]: {...} }
   const [answers, setAnswers] = useState({});
 
   useEffect(() => {
@@ -74,7 +85,6 @@ export default function FormPlayer() {
         setForm(data.form || null);
         setQuestions(qs);
 
-        // init empty answers for each question
         const init = {};
         for (const q of qs) {
           if (q.questionType === "categorize") {
@@ -229,110 +239,424 @@ export default function FormPlayer() {
     }
   };
 
+  // Calculate progress
+  const calculateProgress = () => {
+    let totalAnswerable = 0;
+    let answered = 0;
+
+    questions.forEach((q) => {
+      const v = answers[q._id];
+
+      if (q.questionType === "categorize") {
+        const items = q.items || [];
+        totalAnswerable += items.length;
+        answered += items.filter(
+          (it) => v?.[it.itemId] && v[it.itemId] !== ""
+        ).length;
+      } else if (q.questionType === "cloze") {
+        const blanks = q.blanks || [];
+        totalAnswerable += blanks.length;
+        answered += blanks.filter(
+          (b) => v?.[b.blankId] && v[b.blankId].toString().trim() !== ""
+        ).length;
+      } else if (q.questionType === "comprehension") {
+        const subs = q.subQuestions || [];
+        totalAnswerable += subs.length;
+        answered += subs.filter(
+          (sq) =>
+            v?.[sq.subQuestionId] &&
+            v[sq.subQuestionId].toString().trim() !== ""
+        ).length;
+      }
+    });
+
+    return totalAnswerable > 0
+      ? Math.round((answered / totalAnswerable) * 100)
+      : 0;
+  };
+
+  const progress = calculateProgress();
+  const elapsedTime = Math.floor((Date.now() - startedAt) / 1000 / 60); // minutes
+
   if (loading) {
     return (
-      <Box className="flex items-center justify-center min-h-[50vh]">
-        <CircularProgress />
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="50vh"
+        gap={2}
+      >
+        <CircularProgress size={50} />
+        <Typography variant="h6" color="text.secondary">
+          Loading quiz...
+        </Typography>
       </Box>
     );
   }
 
   if (error && !form) {
     return (
-      <Container maxWidth="md" className="py-6">
-        <Alert severity="error" className="mb-3">
-          {error}
-        </Alert>
-        <Button variant="outlined" onClick={() => window.location.reload()}>
-          Retry
-        </Button>
+      <Container maxWidth="md" sx={{ py: 6 }}>
+        <Card elevation={3} sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
+          <Typography variant="h5" color="error" sx={{ mb: 2 }}>
+            ⚠️ Unable to Load Quiz
+          </Typography>
+          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+            {error}
+          </Alert>
+          <Button
+            variant="contained"
+            onClick={() => window.location.reload()}
+            sx={{ borderRadius: 2, px: 3 }}
+          >
+            Try Again
+          </Button>
+        </Card>
       </Container>
     );
   }
 
   if (submitted) {
     return (
-      <Container maxWidth="md" className="py-6">
-        <Paper className="p-5 mb-4">
-          <Typography variant="h4" className="mb-2">
-            Thank you!
+      <Container maxWidth="md" sx={{ py: 6 }}>
+        <Card
+          elevation={4}
+          sx={{
+            p: 4,
+            textAlign: "center",
+            borderRadius: 3,
+            background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+            color: "white",
+            mb: 3,
+          }}
+        >
+          <CheckCircle sx={{ fontSize: 60, mb: 2 }} />
+          <Typography variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
+            🎉 Submission Successful!
           </Typography>
-          <Typography variant="body1" className="mb-2">
-            Your response has been recorded.
+          <Typography variant="h6" sx={{ mb: 2, opacity: 0.9 }}>
+            Your response has been recorded successfully.
           </Typography>
+
           {submitted.totalScore !== undefined && (
-            <Typography variant="h6" className="mt-2">
-              Score: {submitted.totalScore}
-              {submitted.maxScore ? ` / ${submitted.maxScore}` : ""}
+            <Card
+              elevation={2}
+              sx={{
+                p: 2,
+                mt: 3,
+                backgroundColor: "rgba(255,255,255,0.9)",
+                color: "#333",
+              }}
+            >
+              <Typography variant="h5" fontWeight="bold" color="primary">
+                📊 Your Score: {submitted.totalScore}
+                {submitted.maxScore ? ` / ${submitted.maxScore}` : ""}
+              </Typography>
+              {submitted.maxScore && (
+                <Typography variant="body1" sx={{ mt: 1 }}>
+                  Percentage:{" "}
+                  {Math.round(
+                    (submitted.totalScore / submitted.maxScore) * 100
+                  )}
+                  %
+                </Typography>
+              )}
+            </Card>
+          )}
+        </Card>
+
+        {submitted.breakdown && (
+          <Card elevation={2} sx={{ p: 3, borderRadius: 3, mb: 3 }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+              📈 Detailed Breakdown
             </Typography>
-          )}
-          {submitted.breakdown && (
-            <Box className="mt-3">
-              <Typography variant="subtitle1">Breakdown</Typography>
-              <pre className="bg-gray-50 p-3 rounded overflow-auto">
-                {JSON.stringify(submitted.breakdown, null, 2)}
-              </pre>
-            </Box>
-          )}
-        </Paper>
-        <Button variant="contained" onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
-        </Button>
+            <Paper
+              elevation={1}
+              sx={{
+                p: 2,
+                backgroundColor: "#f8f9fa",
+                borderRadius: 2,
+                fontFamily: "monospace",
+                fontSize: "0.9rem",
+                maxHeight: 300,
+                overflow: "auto",
+              }}
+            >
+              <pre>{JSON.stringify(submitted.breakdown, null, 2)}</pre>
+            </Paper>
+          </Card>
+        )}
+
+        <Box display="flex" justifyContent="center">
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => navigate("/dashboard")}
+            sx={{
+              borderRadius: 3,
+              px: 4,
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              "&:hover": {
+                background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+              },
+            }}
+          >
+            Back to Dashboard
+          </Button>
+        </Box>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="md" className="py-6">
-      {error && (
-        <Alert severity="error" className="mb-3" onClose={() => setError("")}>
-          {error}
-        </Alert>
-      )}
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Error Alert */}
+      <Fade in={!!error}>
+        <Box sx={{ mb: 3 }}>
+          {error && (
+            <Alert
+              severity="error"
+              sx={{ borderRadius: 2 }}
+              onClose={() => setError("")}
+            >
+              {error}
+            </Alert>
+          )}
+        </Box>
+      </Fade>
 
-      <Paper className="p-5 mb-4 shadow-sm">
-        <Typography variant="h4" className="font-bold mb-2">
-          {form?.title}
-        </Typography>
-        {form?.description && (
-          <Typography variant="body1" color="text.secondary" className="mb-3">
-            {form.description}
-          </Typography>
-        )}
-        <Box className="flex items-center gap-2">
-          <Chip label="Quiz" />
-          <Chip label={`${questions.length} questions`} variant="outlined" />
+      {/* Enhanced Header */}
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          mb: 4,
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={2} mb={2}>
+          <Quiz sx={{ fontSize: 32 }} />
+          <Box flex={1}>
+            <Typography variant="h4" fontWeight="bold">
+              {form?.title}
+            </Typography>
+            {form?.description && (
+              <Typography variant="body1" sx={{ mt: 1, opacity: 0.9 }}>
+                {form.description}
+              </Typography>
+            )}
+          </Box>
+        </Box>
+
+        <Box display="flex" flexWrap="wrap" gap={2} mb={3}>
+          <Chip
+            icon={<Assignment />}
+            label="Interactive Quiz"
+            sx={{
+              backgroundColor: "rgba(255,255,255,0.2)",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          />
+          <Chip
+            icon={<Quiz />}
+            label={`${questions.length} Questions`}
+            sx={{
+              backgroundColor: "rgba(255,255,255,0.15)",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          />
+          <Chip
+            icon={<Timer />}
+            label={`${elapsedTime} min elapsed`}
+            sx={{
+              backgroundColor: "rgba(255,255,255,0.15)",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          />
+        </Box>
+
+        {/* Progress Bar */}
+        <Box>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={1}
+          >
+            <Typography variant="body2" fontWeight="500">
+              Overall Progress
+            </Typography>
+            <Typography variant="body2" fontWeight="bold">
+              {progress}% Complete
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={{
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: "rgba(255,255,255,0.3)",
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: progress === 100 ? "#4caf50" : "#fff",
+                borderRadius: 4,
+              },
+            }}
+          />
         </Box>
       </Paper>
 
-      <Divider className="mb-4" />
-
-      {questions.map((q, idx) => (
-        <Box key={q._id}>
-          <Typography
-            variant="subtitle2"
-            color="text.secondary"
-            className="mb-1"
-          >
-            Question {idx + 1}
+      {/* Instructions Card */}
+      <Card
+        elevation={2}
+        sx={{ mb: 4, borderRadius: 3, border: "1px solid #e3f2fd" }}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box display="flex" alignItems="center" gap={1} mb={2}>
+            <Lightbulb sx={{ color: "#2196f3", fontSize: 24 }} />
+            <Typography variant="h6" fontWeight="bold" color="primary">
+              Instructions
+            </Typography>
+          </Box>
+          <Typography variant="body1" color="text.secondary">
+            📝 Answer all questions to the best of your ability
+            <br />
+            ⏱️ Take your time - there's no time limit
+            <br />
+            ✅ Make sure to complete all required fields before submitting
+            <br />
+            💾 Your progress is automatically saved as you go
           </Typography>
-          <QuestionPlayer
-            question={q}
-            value={answers[q._id]}
-            onChange={(val) => handleChange(q._id, val)}
-          />
-        </Box>
-      ))}
+        </CardContent>
+      </Card>
 
-      <Box className="mt-6 flex gap-2">
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={submitting}
-        >
-          {submitting ? "Submitting..." : "Submit"}
-        </Button>
-      </Box>
+      {/* Questions Section */}
+      <Fade in timeout={500}>
+        <Box>
+          {questions.map((q, idx) => (
+            <Box key={q._id} sx={{ mb: 2 }}>
+              <Paper
+                elevation={1}
+                sx={{
+                  p: 2,
+                  mb: 1,
+                  borderRadius: 2,
+                  backgroundColor: "#f8f9fa",
+                  border: "1px solid #e0e0e0",
+                }}
+              >
+                <Box display="flex" alignItems="center" gap={2}>
+                  <Chip
+                    label={`Question ${idx + 1}`}
+                    size="small"
+                    sx={{
+                      backgroundColor: "#667eea",
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    {q.questionType.charAt(0).toUpperCase() +
+                      q.questionType.slice(1)}{" "}
+                    Question
+                  </Typography>
+                  {q.isRequired !== false && (
+                    <Chip
+                      label="Required"
+                      size="small"
+                      color="error"
+                      variant="outlined"
+                    />
+                  )}
+                </Box>
+              </Paper>
+
+              <QuestionPlayer
+                question={q}
+                value={answers[q._id]}
+                onChange={(val) => handleChange(q._id, val)}
+              />
+            </Box>
+          ))}
+        </Box>
+      </Fade>
+
+      {/* Enhanced Submit Section */}
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          mt: 6,
+          borderRadius: 3,
+          textAlign: "center",
+          backgroundColor: "#fafafa",
+          border: "2px solid #e0e0e0",
+        }}
+      >
+        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+          Ready to Submit?
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Please review your answers before submitting. You won't be able to
+          change them afterwards.
+        </Typography>
+
+        <Box display="flex" justifyContent="center" gap={2}>
+          <Tooltip
+            title={
+              progress < 100
+                ? "Complete all questions for full credit"
+                : "All questions completed!"
+            }
+          >
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleSubmit}
+              disabled={submitting}
+              startIcon={submitting ? <CircularProgress size={20} /> : <Send />}
+              sx={{
+                borderRadius: 3,
+                px: 4,
+                py: 1.5,
+                fontWeight: "bold",
+                background:
+                  progress === 100
+                    ? "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)"
+                    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                "&:hover": {
+                  background:
+                    progress === 100
+                      ? "linear-gradient(135deg, #45a049 0%, #5cb85c 100%)"
+                      : "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+                },
+                "&:disabled": {
+                  background: "#ccc",
+                },
+              }}
+            >
+              {submitting ? "Submitting..." : "Submit Quiz"}
+            </Button>
+          </Tooltip>
+        </Box>
+
+        {progress < 100 && (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ mt: 2, display: "block" }}
+          >
+            💡 Tip: Complete all questions for the best score!
+          </Typography>
+        )}
+      </Paper>
     </Container>
   );
 }

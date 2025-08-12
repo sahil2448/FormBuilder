@@ -14,13 +14,41 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Paper,
+  Tooltip,
+  Fade,
+  Grid,
 } from "@mui/material";
-import { Add, Delete, Save } from "@mui/icons-material";
+import {
+  Add,
+  Delete,
+  Save,
+  MenuBook,
+  Quiz,
+  CheckCircle,
+  RadioButtonUnchecked,
+  Image,
+} from "@mui/icons-material";
 
 const SUB_TYPES = [
-  { value: "mcq", label: "Multiple Choice" },
-  { value: "short-answer", label: "Short Answer" },
-  { value: "true-false", label: "True / False" },
+  {
+    value: "mcq",
+    label: "Multiple Choice",
+    icon: "🔘",
+    color: "#2196f3",
+  },
+  {
+    value: "short-answer",
+    label: "Short Answer",
+    icon: "✏️",
+    color: "#4caf50",
+  },
+  {
+    value: "true-false",
+    label: "True / False",
+    icon: "❓",
+    color: "#ff9800",
+  },
 ];
 
 function uid(prefix = "id") {
@@ -32,7 +60,7 @@ export default function ComprehensionQuestion({
     questionType: "comprehension",
     questionText: "Read the passage and answer.",
     instructions: "Read the passage carefully and answer the questions below",
-    points: 3, // can be sum of subs or independent—kept for compatibility
+    points: 3,
     passage: "The Earth revolves around the Sun in approximately 365 days.",
     passageImage: null,
     subQuestions: [
@@ -138,7 +166,6 @@ export default function ComprehensionQuestion({
         }
       }
       if (sq.questionType === "true-false") {
-        // enforce options True/False by convention
         const labels = (sq.options || []).map((o) =>
           (o.optionText || "").toLowerCase()
         );
@@ -176,7 +203,7 @@ export default function ComprehensionQuestion({
     const payload = {
       questionType: "comprehension",
       questionText: questionText.trim(),
-      points: Number(points) || 1, // optional aggregate or unused on server if you sum per sub
+      points: Number(points) || 1,
       instructions: instructions.trim(),
       passage,
       passageImage: passageImage || null,
@@ -272,217 +299,462 @@ export default function ComprehensionQuestion({
     );
   };
 
+  const getSubTypeInfo = (type) => SUB_TYPES.find((t) => t.value === type);
+  const totalSubPoints = subs.reduce((sum, sq) => sum + (sq.points || 0), 0);
+
   return (
-    <Box className="space-y-4">
-      {error && <Alert severity="error">{error}</Alert>}
-
-      <TextField
-        label="Question Title"
-        fullWidth
-        multiline
-        rows={2}
-        value={questionText}
-        onChange={(e) => setQuestionText(e.target.value)}
-      />
-
-      <Box className="flex gap-4">
-        <TextField
-          label="Total Points (optional)"
-          type="number"
-          sx={{ maxWidth: 200 }}
-          value={points}
-          onChange={(e) => setPoints(e.target.value)}
-          inputProps={{ min: 0 }}
-        />
-        <TextField
-          label="Instructions (optional)"
-          fullWidth
-          value={instructions}
-          onChange={(e) => setInstructions(e.target.value)}
+    <Paper
+      elevation={2}
+      sx={{ p: 3, borderRadius: 3, backgroundColor: "#fafafa" }}
+    >
+      <Box display="flex" alignItems="center" gap={1} mb={3}>
+        <MenuBook sx={{ color: "#ff9800", fontSize: 28 }} />
+        <Typography variant="h6" fontWeight="bold" sx={{ color: "#ff9800" }}>
+          Comprehension Question Editor
+        </Typography>
+        <Chip
+          label="Reading & Analysis"
+          size="small"
+          sx={{
+            backgroundColor: "#ff9800",
+            color: "white",
+            fontWeight: "bold",
+          }}
         />
       </Box>
 
-      <Card variant="outlined">
-        <CardContent>
-          <Typography variant="subtitle1" fontWeight="600" className="mb-2">
-            Passage
-          </Typography>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 4 }}>
+        <Fade in={!!error}>
+          <Box>
+            {error && (
+              <Alert
+                severity="error"
+                sx={{ borderRadius: 2 }}
+                onClose={() => setError("")}
+              >
+                {error}
+              </Alert>
+            )}
+          </Box>
+        </Fade>
+
+        <TextField
+          label="Question Title"
+          fullWidth
+          multiline
+          rows={3}
+          value={questionText}
+          onChange={(e) => setQuestionText(e.target.value)}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+            },
+          }}
+        />
+
+        <Box display="flex" gap={2}>
           <TextField
-            label="Passage"
+            label="Total Points"
+            type="number"
+            sx={{ maxWidth: 150 }}
+            value={points}
+            onChange={(e) => setPoints(e.target.value)}
+            inputProps={{ min: 0 }}
+            InputProps={{
+              sx: { borderRadius: 2 },
+            }}
+            helperText={`Sub-questions total: ${totalSubPoints}`}
+          />
+          <TextField
+            label="Instructions"
+            fullWidth
+            value={instructions}
+            onChange={(e) => setInstructions(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+              },
+            }}
+          />
+        </Box>
+      </Box>
+
+      {/* Enhanced Passage Section */}
+      <Paper
+        elevation={3}
+        sx={{
+          mb: 3,
+          borderRadius: 3,
+          border: "2px solid rgba(255, 152, 0, 0.2)",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            p: 2,
+            background: "linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)",
+            color: "white",
+          }}
+        >
+          <Box display="flex" alignItems="center" gap={1}>
+            <MenuBook sx={{ fontSize: 20 }} />
+            <Typography variant="subtitle1" fontWeight="bold">
+              Reading Passage
+            </Typography>
+          </Box>
+        </Box>
+
+        <CardContent sx={{ p: 3 }}>
+          <TextField
+            label="Passage Text"
             fullWidth
             multiline
             minRows={6}
             value={passage}
             onChange={(e) => setPassage(e.target.value)}
+            sx={{
+              mb: 3,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+              },
+            }}
           />
-          <Box className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+
+          <Box display="flex" alignItems="center" gap={2}>
+            <Image sx={{ color: "#ff9800" }} />
             <TextField
               label="Passage Image URL (optional)"
               value={passageImage || ""}
               onChange={(e) => setPassageImage(e.target.value)}
-              placeholder="https://..."
+              placeholder="https://example.com/image.jpg"
               fullWidth
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                },
+              }}
             />
           </Box>
         </CardContent>
-      </Card>
+      </Paper>
 
-      <Card variant="outlined">
-        <CardContent>
-          <Box className="flex items-center justify-between mb-2">
-            <Typography variant="subtitle1" fontWeight="600">
-              Sub-Questions ({subs.length})
-            </Typography>
-            <Box className="flex gap-2">
-              <Button
+      <Paper
+        elevation={3}
+        sx={{
+          mb: 3,
+          borderRadius: 3,
+          border: "2px solid rgba(255, 152, 0, 0.2)",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            p: 2,
+            background: "linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)",
+            color: "white",
+          }}
+        >
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box display="flex" alignItems="center" gap={1}>
+              <Quiz sx={{ fontSize: 20 }} />
+              <Typography variant="subtitle1" fontWeight="bold">
+                Sub-Questions ({subs.length})
+              </Typography>
+              <Chip
                 size="small"
-                variant="outlined"
-                onClick={() => addSub("mcq")}
-              >
-                Add MCQ
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => addSub("true-false")}
-              >
-                Add True/False
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => addSub("short-answer")}
-              >
-                Add Short Answer
-              </Button>
+                label={`${totalSubPoints} pts total`}
+                sx={{
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+              />
+            </Box>
+            <Box display="flex" gap={1} flexWrap="wrap">
+              {SUB_TYPES.map((type) => (
+                <Tooltip key={type.value} title={`Add ${type.label}`}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={() => addSub(type.value)}
+                    sx={{
+                      backgroundColor: "rgba(255,255,255,0.2)",
+                      color: "white",
+                      fontWeight: "bold",
+                      minWidth: "auto",
+                      "&:hover": {
+                        backgroundColor: "rgba(255,255,255,0.3)",
+                      },
+                    }}
+                  >
+                    {type.icon}
+                  </Button>
+                </Tooltip>
+              ))}
             </Box>
           </Box>
-          <Divider className="mb-3" />
+        </Box>
 
-          <Box className="space-y-3">
-            {subs.map((sq, idx) => (
-              <Card key={sq.subQuestionId} variant="outlined">
-                <CardContent>
-                  <Box className="flex items-center justify-between mb-2">
-                    <Box className="flex items-center gap-2">
-                      <Chip size="small" label={`Q${idx + 1}`} />
-                      <FormControl size="small" sx={{ minWidth: 180 }}>
-                        <InputLabel>Type</InputLabel>
-                        <Select
-                          label="Type"
-                          value={sq.questionType}
+        <CardContent sx={{ p: 3 }}>
+          {subs.length === 0 ? (
+            <Alert
+              severity="info"
+              sx={{ borderRadius: 2, textAlign: "center" }}
+            >
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                📝 No sub-questions yet
+              </Typography>
+              <Typography variant="body2">
+                Add MCQ, True/False, or Short Answer questions using the buttons
+                above.
+              </Typography>
+            </Alert>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              {subs.map((sq, idx) => {
+                const typeInfo = getSubTypeInfo(sq.questionType);
+                return (
+                  <Paper
+                    key={sq.subQuestionId}
+                    elevation={2}
+                    sx={{
+                      p: 3,
+                      borderRadius: 3,
+                      border: `2px solid ${typeInfo?.color}20`,
+                      "&:hover": {
+                        boxShadow: 4,
+                        borderColor: `${typeInfo?.color}60`,
+                      },
+                      transition: "all 0.3s ease-in-out",
+                    }}
+                  >
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={3}
+                    >
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <Chip
+                          label={`Q${idx + 1}`}
+                          sx={{
+                            backgroundColor: typeInfo?.color,
+                            color: "white",
+                            fontWeight: "bold",
+                          }}
+                        />
+                        <FormControl size="small" sx={{ minWidth: 200 }}>
+                          <InputLabel>Question Type</InputLabel>
+                          <Select
+                            label="Question Type"
+                            value={sq.questionType}
+                            onChange={(e) =>
+                              setSubField(
+                                sq.subQuestionId,
+                                "questionType",
+                                e.target.value
+                              )
+                            }
+                            sx={{ borderRadius: 2 }}
+                          >
+                            {SUB_TYPES.map((t) => (
+                              <MenuItem key={t.value} value={t.value}>
+                                {t.icon} {t.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                      <Tooltip title="Delete sub-question">
+                        <IconButton
+                          size="small"
+                          onClick={() => deleteSub(sq.subQuestionId)}
+                          sx={{
+                            color: "error.main",
+                            "&:hover": { backgroundColor: "error.50" },
+                          }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+
+                    <Grid container spacing={2} sx={{ mb: 3 }}>
+                      <Grid item xs={12} md={8}>
+                        <TextField
+                          label="Sub-question Text"
+                          value={sq.questionText}
                           onChange={(e) =>
                             setSubField(
                               sq.subQuestionId,
-                              "questionType",
+                              "questionText",
                               e.target.value
                             )
                           }
+                          fullWidth
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                            },
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <TextField
+                          label="Points"
+                          type="number"
+                          value={sq.points}
+                          onChange={(e) =>
+                            setSubField(
+                              sq.subQuestionId,
+                              "points",
+                              Number(e.target.value)
+                            )
+                          }
+                          inputProps={{ min: 1 }}
+                          fullWidth
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                            },
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+
+                    {sq.questionType === "mcq" && (
+                      <Paper
+                        elevation={1}
+                        sx={{
+                          p: 2,
+                          mb: 2,
+                          backgroundColor: "#f8f9fa",
+                          borderRadius: 2,
+                          border: `1px dashed ${typeInfo?.color}`,
+                        }}
+                      >
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="space-between"
+                          mb={2}
                         >
-                          {SUB_TYPES.map((t) => (
-                            <MenuItem key={t.value} value={t.value}>
-                              {t.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Box>
-                    <IconButton
-                      size="small"
-                      onClick={() => deleteSub(sq.subQuestionId)}
-                    >
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  </Box>
-
-                  <Box className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                    <TextField
-                      label="Sub-question Text"
-                      value={sq.questionText}
-                      onChange={(e) =>
-                        setSubField(
-                          sq.subQuestionId,
-                          "questionText",
-                          e.target.value
-                        )
-                      }
-                      fullWidth
-                    />
-                    <TextField
-                      label="Points"
-                      type="number"
-                      value={sq.points}
-                      onChange={(e) =>
-                        setSubField(
-                          sq.subQuestionId,
-                          "points",
-                          Number(e.target.value)
-                        )
-                      }
-                      inputProps={{ min: 1 }}
-                    />
-                  </Box>
-
-                  {sq.questionType === "mcq" && (
-                    <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
-                      <Typography variant="subtitle2" className="mb-2">
-                        Options (mark at least one as correct)
-                      </Typography>
-                      <Box className="space-y-2">
-                        {(sq.options || []).map((opt, oIdx) => (
-                          <Box
-                            key={oIdx}
-                            className="grid grid-cols-12 gap-2 items-center"
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            Multiple Choice Options
+                          </Typography>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => addOption(sq.subQuestionId)}
+                            startIcon={<Add />}
+                            sx={{
+                              borderColor: typeInfo?.color,
+                              color: typeInfo?.color,
+                              borderRadius: 2,
+                              "&:hover": {
+                                backgroundColor: `${typeInfo?.color}10`,
+                              },
+                            }}
                           >
-                            <TextField
-                              className="col-span-8"
-                              label={`Option ${oIdx + 1}`}
-                              value={opt.optionText || ""}
-                              onChange={(e) =>
-                                setOptionField(
-                                  sq.subQuestionId,
-                                  oIdx,
-                                  "optionText",
-                                  e.target.value
-                                )
-                              }
-                            />
-                            <TextField
-                              className="col-span-3"
-                              label="Correct?"
-                              value={opt.isCorrect ? "Yes" : "No"}
-                              onClick={() =>
-                                setOptionField(
-                                  sq.subQuestionId,
-                                  oIdx,
-                                  "isCorrect",
-                                  !opt.isCorrect
-                                )
-                              }
-                              inputProps={{ readOnly: true }}
-                            />
-                            <IconButton
-                              className="col-span-1"
-                              size="small"
-                              onClick={() =>
-                                deleteOption(sq.subQuestionId, oIdx)
-                              }
-                            >
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        ))}
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => addOption(sq.subQuestionId)}
-                          startIcon={<Add />}
-                        >
-                          Add Option
-                        </Button>
-                      </Box>
+                            Add Option
+                          </Button>
+                        </Box>
 
-                      <Box className="mt-3">
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                          }}
+                        >
+                          {(sq.options || []).map((opt, oIdx) => (
+                            <Box
+                              key={oIdx}
+                              display="flex"
+                              alignItems="center"
+                              gap={2}
+                              sx={{
+                                p: 1.5,
+                                backgroundColor: opt.isCorrect
+                                  ? `${typeInfo?.color}20`
+                                  : "white",
+                                borderRadius: 2,
+                                border: opt.isCorrect
+                                  ? `2px solid ${typeInfo?.color}`
+                                  : "1px solid #e0e0e0",
+                              }}
+                            >
+                              <TextField
+                                label={`Option ${oIdx + 1}`}
+                                value={opt.optionText || ""}
+                                onChange={(e) =>
+                                  setOptionField(
+                                    sq.subQuestionId,
+                                    oIdx,
+                                    "optionText",
+                                    e.target.value
+                                  )
+                                }
+                                sx={{
+                                  flex: 1,
+                                  "& .MuiOutlinedInput-root": {
+                                    borderRadius: 2,
+                                  },
+                                }}
+                              />
+
+                              <Tooltip
+                                title={
+                                  opt.isCorrect
+                                    ? "Correct answer"
+                                    : "Mark as correct"
+                                }
+                              >
+                                <IconButton
+                                  onClick={() =>
+                                    setOptionField(
+                                      sq.subQuestionId,
+                                      oIdx,
+                                      "isCorrect",
+                                      !opt.isCorrect
+                                    )
+                                  }
+                                  sx={{
+                                    color: opt.isCorrect
+                                      ? typeInfo?.color
+                                      : "grey.400",
+                                  }}
+                                >
+                                  {opt.isCorrect ? (
+                                    <CheckCircle />
+                                  ) : (
+                                    <RadioButtonUnchecked />
+                                  )}
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title="Delete option">
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    deleteOption(sq.subQuestionId, oIdx)
+                                  }
+                                  sx={{
+                                    color: "error.main",
+                                    "&:hover": { backgroundColor: "error.50" },
+                                  }}
+                                >
+                                  <Delete fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                          ))}
+                        </Box>
+
                         <TextField
                           label="Correct Answer (must match a correct option)"
                           fullWidth
@@ -494,63 +766,111 @@ export default function ComprehensionQuestion({
                               e.target.value
                             )
                           }
+                          sx={{
+                            mt: 2,
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                            },
+                          }}
                         />
-                      </Box>
-                    </Card>
-                  )}
+                      </Paper>
+                    )}
 
-                  {sq.questionType === "true-false" && (
-                    <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
-                      <Typography variant="subtitle2" className="mb-2">
-                        True/False Options
-                      </Typography>
-                      <Box className="space-y-2">
-                        {(sq.options || []).map((opt, oIdx) => (
-                          <Box
-                            key={oIdx}
-                            className="grid grid-cols-12 gap-2 items-center"
-                          >
-                            <TextField
-                              className="col-span-8"
-                              label={`Option ${oIdx + 1}`}
-                              value={opt.optionText || ""}
-                              onChange={(e) =>
-                                setOptionField(
-                                  sq.subQuestionId,
-                                  oIdx,
-                                  "optionText",
-                                  e.target.value
-                                )
-                              }
-                            />
-                            <TextField
-                              className="col-span-3"
-                              label="Correct?"
-                              value={opt.isCorrect ? "Yes" : "No"}
-                              onClick={() =>
-                                setOptionField(
-                                  sq.subQuestionId,
-                                  oIdx,
-                                  "isCorrect",
-                                  !opt.isCorrect
-                                )
-                              }
-                              inputProps={{ readOnly: true }}
-                            />
-                            <IconButton
-                              className="col-span-1"
-                              size="small"
-                              onClick={() =>
-                                deleteOption(sq.subQuestionId, oIdx)
-                              }
+                    {sq.questionType === "true-false" && (
+                      <Paper
+                        elevation={1}
+                        sx={{
+                          p: 2,
+                          mb: 2,
+                          backgroundColor: "#f8f9fa",
+                          borderRadius: 2,
+                          border: `1px dashed ${typeInfo?.color}`,
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle2"
+                          fontWeight="bold"
+                          sx={{ mb: 2 }}
+                        >
+                          True/False Options
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            mb: 2,
+                          }}
+                        >
+                          {(sq.options || []).map((opt, oIdx) => (
+                            <Box
+                              key={oIdx}
+                              display="flex"
+                              alignItems="center"
+                              gap={2}
+                              sx={{
+                                p: 1.5,
+                                backgroundColor: opt.isCorrect
+                                  ? `${typeInfo?.color}20`
+                                  : "white",
+                                borderRadius: 2,
+                                border: opt.isCorrect
+                                  ? `2px solid ${typeInfo?.color}`
+                                  : "1px solid #e0e0e0",
+                              }}
                             >
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        ))}
-                      </Box>
+                              <TextField
+                                label={`Option ${oIdx + 1}`}
+                                value={opt.optionText || ""}
+                                onChange={(e) =>
+                                  setOptionField(
+                                    sq.subQuestionId,
+                                    oIdx,
+                                    "optionText",
+                                    e.target.value
+                                  )
+                                }
+                                sx={{
+                                  flex: 1,
+                                  "& .MuiOutlinedInput-root": {
+                                    borderRadius: 2,
+                                  },
+                                }}
+                              />
 
-                      <Box className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <Tooltip
+                                title={
+                                  opt.isCorrect
+                                    ? "Correct answer"
+                                    : "Mark as correct"
+                                }
+                              >
+                                <IconButton
+                                  onClick={() =>
+                                    setOptionField(
+                                      sq.subQuestionId,
+                                      oIdx,
+                                      "isCorrect",
+                                      !opt.isCorrect
+                                    )
+                                  }
+                                  sx={{
+                                    color: opt.isCorrect
+                                      ? typeInfo?.color
+                                      : "grey.400",
+                                  }}
+                                >
+                                  {opt.isCorrect ? (
+                                    <CheckCircle />
+                                  ) : (
+                                    <RadioButtonUnchecked />
+                                  )}
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                          ))}
+                        </Box>
+
                         <TextField
                           label='Correct Answer ("True" or "False")'
                           fullWidth
@@ -562,45 +882,91 @@ export default function ComprehensionQuestion({
                               e.target.value
                             )
                           }
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                            },
+                          }}
                         />
-                      </Box>
-                    </Card>
-                  )}
+                      </Paper>
+                    )}
 
-                  {sq.questionType === "short-answer" && (
-                    <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
-                      <Typography variant="subtitle2" className="mb-2">
-                        Short Answer
-                      </Typography>
-                      <TextField
-                        label="Correct Answer"
-                        fullWidth
-                        value={sq.correctAnswer || ""}
-                        onChange={(e) =>
-                          setSubField(
-                            sq.subQuestionId,
-                            "correctAnswer",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </Card>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
+                    {sq.questionType === "short-answer" && (
+                      <Paper
+                        elevation={1}
+                        sx={{
+                          p: 2,
+                          mb: 2,
+                          backgroundColor: "#f8f9fa",
+                          borderRadius: 2,
+                          border: `1px dashed ${typeInfo?.color}`,
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle2"
+                          fontWeight="bold"
+                          sx={{ mb: 2 }}
+                        >
+                          Short Answer Configuration
+                        </Typography>
+                        <TextField
+                          label="Correct Answer"
+                          fullWidth
+                          value={sq.correctAnswer || ""}
+                          onChange={(e) =>
+                            setSubField(
+                              sq.subQuestionId,
+                              "correctAnswer",
+                              e.target.value
+                            )
+                          }
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                            },
+                          }}
+                          helperText="This will be used for exact text matching"
+                        />
+                      </Paper>
+                    )}
+                  </Paper>
+                );
+              })}
+            </Box>
+          )}
         </CardContent>
-      </Card>
+      </Paper>
 
-      <Box className="flex items-center gap-2">
-        <Button variant="contained" onClick={handleSave} startIcon={<Save />}>
+      <Box display="flex" flexWrap="wrap" gap={2}>
+        <Button
+          variant="contained"
+          onClick={handleSave}
+          startIcon={<Save />}
+          sx={{
+            borderRadius: 2,
+            px: 3,
+            fontWeight: "bold",
+            background: "linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)",
+            "&:hover": {
+              background: "linear-gradient(135deg, #f57c00 0%, #ffb74d 100%)",
+            },
+          }}
+        >
           Save Question
         </Button>
-        <Button color="error" onClick={onDelete} startIcon={<Delete />}>
+        <Button
+          color="error"
+          onClick={onDelete}
+          startIcon={<Delete />}
+          sx={{
+            borderRadius: 2,
+            px: 3,
+            fontWeight: "bold",
+          }}
+        >
           Delete Question
         </Button>
       </Box>
-    </Box>
+    </Paper>
   );
 }

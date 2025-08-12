@@ -1,4 +1,3 @@
-// src/components/QuestionBuilder/QuestionTypes/ClozeQuestion.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
@@ -15,8 +14,22 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Paper,
+  Tooltip,
+  Fade,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
-import { Add, Delete, Save } from "@mui/icons-material";
+import {
+  Add,
+  Delete,
+  Save,
+  TextFields,
+  Visibility,
+  Edit,
+  CheckCircle,
+  RadioButtonUnchecked,
+} from "@mui/icons-material";
 
 function parseMarkers(passage) {
   const regex = /\[\[blank-([a-zA-Z0-9_-]+)\]\]/g;
@@ -225,9 +238,16 @@ export default function ClozeQuestion({
         <TextField
           key={`blank-${idx}-${blankId}`}
           size="small"
-          placeholder={blank?.placeholder || `Blank`}
+          placeholder={blank?.placeholder || `Blank ${idx + 1}`}
           disabled
-          sx={{ mx: 0.5, width: 160 }}
+          sx={{
+            mx: 0.5,
+            width: 160,
+            "& .MuiOutlinedInput-root": {
+              backgroundColor: "#e3f2fd",
+              borderRadius: 2,
+            },
+          }}
         />
       );
       lastIndex = end;
@@ -236,106 +256,276 @@ export default function ClozeQuestion({
     const after = passage.slice(lastIndex);
     if (after) parts.push(<span key={`text-end`}>{after}</span>);
     return (
-      <Typography variant="body1" component="div">
+      <Typography variant="body1" component="div" sx={{ lineHeight: 2 }}>
         {parts}
       </Typography>
     );
   };
 
   return (
-    <Box className="space-y-4">
-      {error && <Alert severity="error">{error}</Alert>}
-
-      <TextField
-        label="Question Text"
-        fullWidth
-        multiline
-        rows={2}
-        value={questionText}
-        onChange={(e) => setQuestionText(e.target.value)}
-      />
-
-      <Box className="flex gap-4">
-        <TextField
-          label="Points"
-          type="number"
-          sx={{ maxWidth: 140 }}
-          value={points}
-          onChange={(e) => setPoints(e.target.value)}
-          inputProps={{ min: 1 }}
-        />
-        <TextField
-          label="Instructions (optional)"
-          fullWidth
-          value={instructions}
-          onChange={(e) => setInstructions(e.target.value)}
+    <Paper
+      elevation={2}
+      sx={{ p: 3, borderRadius: 3, backgroundColor: "#fafafa" }}
+    >
+      <Box display="flex" alignItems="center" gap={1} mb={3}>
+        <TextFields sx={{ color: "#4caf50", fontSize: 28 }} />
+        <Typography variant="h6" fontWeight="bold" sx={{ color: "#4caf50" }}>
+          Cloze Question Editor
+        </Typography>
+        <Chip
+          label="Fill in the Blanks"
+          size="small"
+          sx={{
+            backgroundColor: "#4caf50",
+            color: "white",
+            fontWeight: "bold",
+          }}
         />
       </Box>
 
-      <Card variant="outlined">
-        <CardContent>
-          <Box className="flex items-center justify-between mb-3">
-            <Typography variant="subtitle1" fontWeight="600">
-              Passage (use markers like [[blank-1]], [[blank-2]])
-            </Typography>
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={addMarkerToPassage}
-              startIcon={<Add />}
-            >
-              Insert Blank Marker
-            </Button>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 4 }}>
+        <Fade in={!!error}>
+          <Box>
+            {error && (
+              <Alert
+                severity="error"
+                sx={{ borderRadius: 2 }}
+                onClose={() => setError("")}
+              >
+                {error}
+              </Alert>
+            )}
           </Box>
+        </Fade>
+
+        <TextField
+          label="Question Text"
+          fullWidth
+          multiline
+          rows={3}
+          value={questionText}
+          onChange={(e) => setQuestionText(e.target.value)}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+            },
+          }}
+        />
+
+        <Box display="flex" gap={2}>
           <TextField
-            label="Passage"
+            label="Points"
+            type="number"
+            sx={{ maxWidth: 150 }}
+            value={points}
+            onChange={(e) => setPoints(e.target.value)}
+            inputProps={{ min: 1 }}
+            InputProps={{
+              sx: { borderRadius: 2 },
+            }}
+          />
+          <TextField
+            label="Instructions (optional)"
+            fullWidth
+            value={instructions}
+            onChange={(e) => setInstructions(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+              },
+            }}
+          />
+        </Box>
+      </Box>
+
+      {/* Enhanced Passage Section */}
+      <Paper
+        elevation={3}
+        sx={{
+          mb: 3,
+          borderRadius: 3,
+          border: "2px solid rgba(76, 175, 80, 0.2)",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            p: 2,
+            background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+            color: "white",
+          }}
+        >
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box display="flex" alignItems="center" gap={1}>
+              <Edit sx={{ fontSize: 20 }} />
+              <Typography variant="subtitle1" fontWeight="bold">
+                Passage Editor
+              </Typography>
+              <Chip
+                size="small"
+                label={`${markerIds.length} blanks`}
+                sx={{
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+              />
+            </Box>
+            <Tooltip title="Insert new blank marker">
+              <Button
+                size="small"
+                variant="contained"
+                onClick={addMarkerToPassage}
+                startIcon={<Add />}
+                sx={{
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  color: "white",
+                  fontWeight: "bold",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.3)",
+                  },
+                }}
+              >
+                Insert Blank
+              </Button>
+            </Tooltip>
+          </Box>
+        </Box>
+
+        <CardContent sx={{ p: 3 }}>
+          <TextField
+            label="Passage (use markers like [[blank-1]], [[blank-2]])"
             fullWidth
             multiline
             minRows={6}
             value={passage}
             onChange={(e) => setPassage(e.target.value)}
+            sx={{
+              mb: 3,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+              },
+            }}
           />
-          <Box className="mt-3">
-            <Typography variant="subtitle2" className="mb-1">
+
+          <Box display="flex" alignItems="center" gap={1} mb={2}>
+            <Visibility sx={{ color: "#4caf50" }} />
+            <Typography variant="subtitle2" fontWeight="bold">
               Live Preview
             </Typography>
-            <Card variant="outlined" sx={{ p: 2, backgroundColor: "#fafafa" }}>
-              {renderPassagePreview()}
-            </Card>
           </Box>
+          <Paper
+            elevation={1}
+            sx={{
+              p: 3,
+              backgroundColor: "#f8f9fa",
+              borderRadius: 2,
+              border: "2px dashed #4caf50",
+            }}
+          >
+            {renderPassagePreview()}
+          </Paper>
         </CardContent>
-      </Card>
+      </Paper>
 
-      <Card variant="outlined">
-        <CardContent>
-          <Typography variant="subtitle1" fontWeight="600" className="mb-2">
-            Blanks ({markerIds.length})
-          </Typography>
-          <Divider className="my-2" />
-          <Box className="space-y-3">
-            {blanks
-              .slice()
-              .sort((a, b) => (a.position || 0) - (b.position || 0))
-              .map((b, i) => (
-                <Card key={b.blankId} variant="outlined">
-                  <CardContent>
-                    <Box className="flex items-center justify-between mb-2">
-                      <Box className="flex items-center gap-2">
-                        <Chip size="small" label={`Blank ${i + 1}`} />
-                        <Typography variant="body2" color="text.secondary">
+      <Paper
+        elevation={3}
+        sx={{
+          mb: 3,
+          borderRadius: 3,
+          border: "2px solid rgba(76, 175, 80, 0.2)",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            p: 2,
+            background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+            color: "white",
+          }}
+        >
+          <Box display="flex" alignItems="center" gap={1}>
+            <TextFields sx={{ fontSize: 20 }} />
+            <Typography variant="subtitle1" fontWeight="bold">
+              Blank Configuration ({markerIds.length})
+            </Typography>
+          </Box>
+        </Box>
+
+        <CardContent sx={{ p: 3 }}>
+          {blanks.length === 0 ? (
+            <Alert severity="info" sx={{ borderRadius: 2 }}>
+              Add blank markers like [[blank-1]] in your passage to configure
+              them here.
+            </Alert>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              {blanks
+                .slice()
+                .sort((a, b) => (a.position || 0) - (b.position || 0))
+                .map((b, i) => (
+                  <Paper
+                    key={b.blankId}
+                    elevation={2}
+                    sx={{
+                      p: 3,
+                      borderRadius: 3,
+                      border: "1px solid rgba(76, 175, 80, 0.3)",
+                      "&:hover": {
+                        boxShadow: 4,
+                        borderColor: "#4caf50",
+                      },
+                      transition: "all 0.3s ease-in-out",
+                    }}
+                  >
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={3}
+                    >
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <Chip
+                          label={`Blank ${i + 1}`}
+                          sx={{
+                            backgroundColor: "#4caf50",
+                            color: "white",
+                            fontWeight: "bold",
+                          }}
+                        />
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          fontFamily="monospace"
+                        >
                           ID: {b.blankId}
                         </Typography>
                       </Box>
-                      <IconButton
-                        size="small"
-                        onClick={() => removeMarker(b.blankId)}
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
+                      <Tooltip title="Remove this blank marker from passage">
+                        <IconButton
+                          size="small"
+                          onClick={() => removeMarker(b.blankId)}
+                          sx={{
+                            color: "error.main",
+                            "&:hover": { backgroundColor: "error.50" },
+                          }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
 
-                    <Box className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                      <FormControl fullWidth>
+                    <Box
+                      display="flex"
+                      flexDirection={{ xs: "column", md: "row" }}
+                      gap={2}
+                      mb={3}
+                    >
+                      <FormControl sx={{ minWidth: 200 }}>
                         <InputLabel>Input Type</InputLabel>
                         <Select
                           label="Input Type"
@@ -347,14 +537,15 @@ export default function ClozeQuestion({
                               e.target.value
                             )
                           }
+                          sx={{ borderRadius: 2 }}
                         >
-                          <MenuItem value="dropdown">Dropdown</MenuItem>
-                          <MenuItem value="text">Text</MenuItem>
+                          <MenuItem value="dropdown">📋 Dropdown</MenuItem>
+                          <MenuItem value="text">✏️ Text Input</MenuItem>
                         </Select>
                       </FormControl>
 
                       <TextField
-                        label="Placeholder (optional)"
+                        label="Placeholder Text"
                         fullWidth
                         value={b.placeholder || ""}
                         onChange={(e) =>
@@ -364,22 +555,77 @@ export default function ClozeQuestion({
                             e.target.value
                           )
                         }
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 2,
+                          },
+                        }}
                       />
                     </Box>
 
                     {b.inputType === "dropdown" && (
-                      <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
-                        <Typography variant="subtitle2" className="mb-2">
-                          Options
-                        </Typography>
-                        <Box className="space-y-2">
+                      <Paper
+                        elevation={1}
+                        sx={{
+                          p: 2,
+                          mb: 3,
+                          backgroundColor: "#f8f9fa",
+                          borderRadius: 2,
+                          border: "1px dashed #4caf50",
+                        }}
+                      >
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="space-between"
+                          mb={2}
+                        >
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            Dropdown Options
+                          </Typography>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => addOption(b.blankId)}
+                            startIcon={<Add />}
+                            sx={{
+                              borderColor: "#4caf50",
+                              color: "#4caf50",
+                              borderRadius: 2,
+                              "&:hover": {
+                                backgroundColor: "rgba(76, 175, 80, 0.1)",
+                              },
+                            }}
+                          >
+                            Add Option
+                          </Button>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                          }}
+                        >
                           {(b.options || []).map((opt, idx) => (
                             <Box
                               key={idx}
-                              className="grid grid-cols-12 gap-2 items-center"
+                              display="flex"
+                              alignItems="center"
+                              gap={2}
+                              sx={{
+                                p: 1.5,
+                                backgroundColor: opt.isCorrect
+                                  ? "rgba(76, 175, 80, 0.1)"
+                                  : "white",
+                                borderRadius: 2,
+                                border: opt.isCorrect
+                                  ? "2px solid #4caf50"
+                                  : "1px solid #e0e0e0",
+                              }}
                             >
                               <TextField
-                                className="col-span-8"
                                 label={`Option ${idx + 1}`}
                                 value={opt.optionText || ""}
                                 onChange={(e) =>
@@ -390,40 +636,60 @@ export default function ClozeQuestion({
                                     e.target.value
                                   )
                                 }
+                                sx={{
+                                  flex: 1,
+                                  "& .MuiOutlinedInput-root": {
+                                    borderRadius: 2,
+                                  },
+                                }}
                               />
-                              <TextField
-                                className="col-span-3"
-                                label="Correct?"
-                                value={opt.isCorrect ? "Yes" : "No"}
-                                onClick={() =>
-                                  setOptionField(
-                                    b.blankId,
-                                    idx,
-                                    "isCorrect",
-                                    !opt.isCorrect
-                                  )
+
+                              <Tooltip
+                                title={
+                                  opt.isCorrect
+                                    ? "Correct answer"
+                                    : "Mark as correct"
                                 }
-                                inputProps={{ readOnly: true }}
-                              />
-                              <IconButton
-                                className="col-span-1"
-                                size="small"
-                                onClick={() => deleteOption(b.blankId, idx)}
                               >
-                                <Delete fontSize="small" />
-                              </IconButton>
+                                <IconButton
+                                  onClick={() =>
+                                    setOptionField(
+                                      b.blankId,
+                                      idx,
+                                      "isCorrect",
+                                      !opt.isCorrect
+                                    )
+                                  }
+                                  sx={{
+                                    color: opt.isCorrect
+                                      ? "#4caf50"
+                                      : "grey.400",
+                                  }}
+                                >
+                                  {opt.isCorrect ? (
+                                    <CheckCircle />
+                                  ) : (
+                                    <RadioButtonUnchecked />
+                                  )}
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title="Delete option">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => deleteOption(b.blankId, idx)}
+                                  sx={{
+                                    color: "error.main",
+                                    "&:hover": { backgroundColor: "error.50" },
+                                  }}
+                                >
+                                  <Delete fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
                             </Box>
                           ))}
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => addOption(b.blankId)}
-                            startIcon={<Add />}
-                          >
-                            Add Option
-                          </Button>
                         </Box>
-                      </Card>
+                      </Paper>
                     )}
 
                     <TextField
@@ -440,24 +706,52 @@ export default function ClozeQuestion({
                       helperText={
                         b.inputType === "dropdown"
                           ? "Must match one of the options marked as correct"
-                          : "Exact text match (case-sensitive for now)"
+                          : "Exact text match (case-sensitive)"
                       }
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                        },
+                      }}
                     />
-                  </CardContent>
-                </Card>
-              ))}
-          </Box>
+                  </Paper>
+                ))}
+            </Box>
+          )}
         </CardContent>
-      </Card>
+      </Paper>
 
-      <Box className="flex items-center gap-2">
-        <Button variant="contained" onClick={handleSave} startIcon={<Save />}>
+      {/* Action Buttons */}
+      <Box display="flex" flexWrap="wrap" gap={2}>
+        <Button
+          variant="contained"
+          onClick={handleSave}
+          startIcon={<Save />}
+          sx={{
+            borderRadius: 2,
+            px: 3,
+            fontWeight: "bold",
+            background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+            "&:hover": {
+              background: "linear-gradient(135deg, #45a049 0%, #5cb85c 100%)",
+            },
+          }}
+        >
           Save Question
         </Button>
-        <Button color="error" onClick={onDelete} startIcon={<Delete />}>
+        <Button
+          color="error"
+          onClick={onDelete}
+          startIcon={<Delete />}
+          sx={{
+            borderRadius: 2,
+            px: 3,
+            fontWeight: "bold",
+          }}
+        >
           Delete Question
         </Button>
       </Box>
-    </Box>
+    </Paper>
   );
 }
