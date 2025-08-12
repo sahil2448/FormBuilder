@@ -166,13 +166,11 @@ export default function CategorizeQuestion({
     useSensor(KeyboardSensor)
   );
 
-  // Containers: 'pool' + categoryIds
   const containers = useMemo(
     () => ["pool", ...categories.map((c) => c.categoryId)],
     [categories]
   );
 
-  // Map container -> items
   const itemsByContainer = useMemo(() => {
     const map = { pool: [] };
     categories.forEach((c) => (map[c.categoryId] = []));
@@ -216,7 +214,6 @@ export default function CategorizeQuestion({
     );
   };
 
-  // Category ops
   const addCategory = () => {
     const id = `cat-${Math.random().toString(36).slice(2, 8)}`;
     setCategories((prev) => [
@@ -295,7 +292,6 @@ export default function CategorizeQuestion({
     <Box className="space-y-4">
       {error && <Alert severity="error">{error}</Alert>}
 
-      {/* Basic fields */}
       <TextField
         label="Question Text"
         fullWidth
@@ -321,7 +317,6 @@ export default function CategorizeQuestion({
         />
       </Box>
 
-      {/* Controls */}
       <Box className="flex items-center gap-2">
         <Button variant="outlined" onClick={addCategory} startIcon={<Add />}>
           Add Category
@@ -334,7 +329,6 @@ export default function CategorizeQuestion({
         </Button>
       </Box>
 
-      {/* DnD area */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -343,11 +337,9 @@ export default function CategorizeQuestion({
         modifiers={[restrictToFirstScrollableAncestor]}
       >
         <Box className="flex gap-4 overflow-x-auto" sx={{ py: 1 }}>
-          {/* Pool */}
           <Box id="pool" sx={{ flex: "0 0 auto" }}>
             <PoolColumn onAddItem={addItem}>
               <SortableItemList items={itemsByContainer["pool"] || []} />
-              {/* Pool items quick delete list */}
               {itemsByContainer["pool"]?.length > 0 && (
                 <Box mt={1}>
                   {itemsByContainer["pool"].map((it) => (
@@ -371,7 +363,6 @@ export default function CategorizeQuestion({
             </PoolColumn>
           </Box>
 
-          {/* Categories */}
           {categories.map((cat) => (
             <Box
               id={cat.categoryId}
@@ -389,7 +380,6 @@ export default function CategorizeQuestion({
                 <SortableItemList
                   items={itemsByContainer[cat.categoryId] || []}
                 />
-                {/* Category items quick delete list */}
                 {itemsByContainer[cat.categoryId]?.length > 0 && (
                   <Box mt={1}>
                     {itemsByContainer[cat.categoryId].map((it) => (

@@ -58,6 +58,7 @@ const submitResponse = async (req, res) => {
 
       scoredAnswers.push({
         ...answer,
+        questionType: question.questionType,
         isCorrect,
         pointsEarned,
       });
@@ -260,44 +261,38 @@ const getResponseStats = async (req, res) => {
 
 // Helper functions for scoring answers
 const checkCategorizeAnswer = (question, answer) => {
-  for (const placement of answer.itemPlacements) {
+  if (!answer || !Array.isArray(answer.itemPlacements)) return false;
+  return answer.itemPlacements.every((placement) => {
     const item = question.items.find((i) => i.itemId === placement.itemId);
-    if (!item || item.correctCategory !== placement.categoryId) {
-      return false;
-    }
-  }
-  return true;
+    return item && item.correctCategory === placement.categoryId;
+  });
 };
 
 const checkClozeAnswer = (question, answer) => {
-  for (const blankAnswer of answer.blankAnswers) {
+  if (!answer || !Array.isArray(answer.blankAnswers)) return false;
+  return answer.blankAnswers.every((blankAnswer) => {
     const blank = question.blanks.find(
       (b) => b.blankId === blankAnswer.blankId
     );
-    if (
-      !blank ||
-      blank.correctAnswer.toLowerCase() !== blankAnswer.userAnswer.toLowerCase()
-    ) {
-      return false;
-    }
-  }
-  return true;
+    return (
+      blank &&
+      blank.correctAnswer.toLowerCase() === blankAnswer.userAnswer.toLowerCase()
+    );
+  });
 };
 
 const checkComprehensionAnswer = (question, answer) => {
-  for (const subAnswer of answer.subAnswers) {
+  if (!answer || !Array.isArray(answer.subAnswers)) return false;
+  return answer.subAnswers.every((subAnswer) => {
     const subQuestion = question.subQuestions.find(
       (sq) => sq.subQuestionId === subAnswer.subQuestionId
     );
-    if (
-      !subQuestion ||
-      subQuestion.correctAnswer.toLowerCase() !==
+    return (
+      subQuestion &&
+      subQuestion.correctAnswer.toLowerCase() ===
         subAnswer.userAnswer.toLowerCase()
-    ) {
-      return false;
-    }
-  }
-  return true;
+    );
+  });
 };
 
 module.exports = {

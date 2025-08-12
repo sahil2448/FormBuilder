@@ -54,4 +54,13 @@ export const formService = {
       throw error.response?.data || error.message;
     }
   },
+
+  unpublishForm: async (formId) => {
+    try {
+      const res = await api.patch(`/forms/${formId}/unpublish`);
+      return res.data;
+    } catch (e) {
+      throw e.response?.data || e.message;
+    }
+  },
 };

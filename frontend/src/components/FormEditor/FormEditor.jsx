@@ -11,7 +11,7 @@ import {
   Tab,
   IconButton,
 } from "@mui/material";
-import { ArrowBack, Add, Save, Preview } from "@mui/icons-material";
+import { ArrowBack, Add, Preview } from "@mui/icons-material";
 import { formService } from "../../services/formService";
 import { questionService } from "../../services/questionService";
 import FormSettings from "./FormSettings";
@@ -21,7 +21,6 @@ import Loading from "../common/Loading";
 
 const FormEditor = () => {
   const { formId } = useParams();
-
   const navigate = useNavigate();
 
   const [form, setForm] = useState(null);
@@ -40,17 +39,10 @@ const FormEditor = () => {
     try {
       setLoading(true);
       setError("");
-
       const formResponse = await formService.getFormById(formId);
-      console.log(formResponse.data);
-      if (formResponse.success) {
-        setForm(formResponse.data);
-      }
-
+      if (formResponse.success) setForm(formResponse.data);
       const questionsResponse = await questionService.getQuestions(formId);
-      if (questionsResponse.success) {
-        setQuestions(questionsResponse.data || []);
-      }
+      if (questionsResponse.success) setQuestions(questionsResponse.data || []);
     } catch (err) {
       setError(err.message || "Failed to load form data");
     } finally {
@@ -62,9 +54,7 @@ const FormEditor = () => {
     try {
       setSaving(true);
       const response = await formService.updateForm(formId, formData);
-      if (response.success) {
-        setForm(response.data);
-      }
+      if (response.success) setForm(response.data);
     } catch (err) {
       setError(err.message || "Failed to save form");
     } finally {
@@ -96,16 +86,13 @@ const FormEditor = () => {
     }
   };
 
-  // Update question
   const handleUpdateQuestion = async (questionId, questionDataOrUpdated) => {
-    // If passed updated question object directly from editor:
     if (questionDataOrUpdated && questionDataOrUpdated._id) {
       setQuestions((prev) =>
         prev.map((q) => (q._id === questionId ? questionDataOrUpdated : q))
       );
       return;
     }
-    // Else use API (kept here for compatibility)
     try {
       const response = await questionService.updateQuestion(
         questionId,
@@ -118,6 +105,19 @@ const FormEditor = () => {
       }
     } catch (err) {
       setError(err.message || "Failed to update question");
+    }
+  };
+
+  const handlePublish = async () => {
+    try {
+      setSaving(true);
+      const res = await formService.publishForm(formId);
+      if (!res.success) throw new Error(res.error || "Failed to publish");
+      setForm(res.data);
+    } catch (err) {
+      setError(err.message || "Failed to publish form");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -140,14 +140,30 @@ const FormEditor = () => {
             </Typography>
           </div>
         </div>
-
+        text
         <div className="flex gap-2">
+          {form?.isPublished && form?.shareableLink && (
+            <Button
+              variant="outlined"
+              onClick={() => navigate(`/form/${form.shareableLink}`)}
+            >
+              Open Public Link
+            </Button>
+          )}
           <Button
             variant="outlined"
             startIcon={<Preview />}
             onClick={() => navigate(`/form/preview/${form._id}`)}
           >
             Preview
+          </Button>
+          <Button
+            variant={form?.isPublished ? "outlined" : "contained"}
+            color={form?.isPublished ? "success" : "primary"}
+            onClick={handlePublish}
+            disabled={saving}
+          >
+            {form?.isPublished ? "Published" : "Publish"}
           </Button>
           <Button
             variant="contained"
@@ -193,10 +209,8 @@ const FormEditor = () => {
         open={addQuestionOpen}
         onClose={() => setAddQuestionOpen(false)}
         onSubmit={handleAddQuestion}
-        formId={formId}
       />
     </Container>
   );
 };
-
 export default FormEditor;

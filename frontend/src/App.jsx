@@ -6,6 +6,7 @@ import SignIn from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import FormEditor from "./components/FormEditor/FormEditor";
 import FormPreview from "./components/FornPreview/FormPreview";
+import FormPlayer from "./components/FormPlayer/FormPlayer";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/form/edit/:formId" element={<FormEditor />} />
         <Route path="/form/preview/:formId" element={<FormPreview />} />
+        <Route path="/form/:shareableLink" element={<FormPlayer />} />
       </Routes>
     </div>
   );

@@ -22,10 +22,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { formService } from "../../services/formService";
 import { questionService } from "../../services/questionService";
 
-// Basic renderers for each question type (preview-only, no scoring)
-// Categorize Preview
 function CategorizePreview({ question }) {
-  // question: { categories: [{categoryName, categoryId}], items: [{itemText, itemId, correctCategory}] }
   return (
     <Card variant="outlined" className="mb-4">
       <CardContent>
@@ -96,8 +93,7 @@ function CategorizePreview({ question }) {
 
 // Cloze Preview
 function ClozePreview({ question }) {
-  // question: { questionText (with blanks hinted), blanks: [{blankId, correctAnswer}], points }
-  // For preview, we show text and blank placeholders (no answer inputs)
+
   return (
     <Card variant="outlined" className="mb-4">
       <CardContent>
@@ -133,8 +129,7 @@ function ClozePreview({ question }) {
 
 // Comprehension Preview
 function ComprehensionPreview({ question }) {
-  // question: { passage, options: [{optionId, text}], correctAnswers: [optionId] } or per sub-questions
-  // For preview, show passage and a simple radio group of options.
+
   return (
     <Card variant="outlined" className="mb-4">
       <CardContent>
