@@ -18,8 +18,8 @@ export default function Navbar() {
   }, []);
 
   React.useEffect(() => {
-    const handleStorageChange = async () => {
-      const token = await localStorage.getItem("token");
+    const handleStorageChange = () => {
+      const token = localStorage.getItem("token");
       if (token) {
         setIsLoggedIn(true);
       }
@@ -29,7 +29,7 @@ export default function Navbar() {
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, []);
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
