@@ -140,7 +140,6 @@ const FormEditor = () => {
             </Typography>
           </div>
         </div>
-        text
         <div className="flex gap-2">
           {form?.isPublished && form?.shareableLink && (
             <Button

@@ -7,26 +7,33 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useState } from "react";
 
 export default function Navbar() {
   const routeTo = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [btnClicked, setBtnClicked] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      setIsLoggedIn(true);
-    }
-  }, [btnClicked]);
+    if (token) setIsLoggedIn(true);
+  }, []);
+
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      const token = localStorage.getItem("token");
+      setIsLoggedIn(!!token);
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     routeTo("/login");
   };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -40,14 +47,15 @@ export default function Navbar() {
           >
             <MenuIcon />
           </IconButton>
+
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             FormBuilder
           </Typography>
+
           {!isLoggedIn ? (
             <Button
               color="inherit"
               onClick={() => {
-                setBtnClicked(!btnClicked);
                 routeTo("/login");
               }}
             >

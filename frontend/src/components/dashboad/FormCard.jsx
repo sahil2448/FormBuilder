@@ -39,7 +39,7 @@ const FormCard = ({ form, onDelete, onPublish }) => {
 
   const handlePreview = () => {
     if (form.isPublished) {
-      navigate(`/form/preview/${form.shareableLink}`);
+      navigate(`/form/preview/${form._id}`);
     }
   };
 
