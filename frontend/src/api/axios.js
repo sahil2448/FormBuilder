@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "https://formbuilder-qpp8.onrender.com/", // Use proxy instead of direct URL
+  baseURL: "https://formbuilder-qpp8.onrender.com", // Use proxy instead of direct URL
+  // baseURL: "http://localhost:4000",
   withCredentials: true, // allow sending cookies
 });
