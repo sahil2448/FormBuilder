@@ -368,7 +368,6 @@ export default function HomePage() {
         </Grid>
       </Container>
 
-      {/* Enhanced Footer */}
       <Box
         sx={{
           background: "linear-gradient(135deg, #2c3e50 0%, #34495e 100%)",

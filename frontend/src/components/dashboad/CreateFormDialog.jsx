@@ -48,7 +48,6 @@ export default function CreateFormDialog({ open, onClose, onSubmit }) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 
-  // Reset form when dialog closes
   React.useEffect(() => {
     if (!open) {
       setFormData({
@@ -84,7 +83,6 @@ export default function CreateFormDialog({ open, onClose, onSubmit }) {
     }));
   };
 
-  // Form validation
   const validateForm = () => {
     if (!formData.title.trim()) {
       setError("Form title is required");
@@ -97,7 +95,6 @@ export default function CreateFormDialog({ open, onClose, onSubmit }) {
     return true;
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
     setError("");
 
@@ -196,7 +193,6 @@ export default function CreateFormDialog({ open, onClose, onSubmit }) {
 
       <DialogContent sx={{ p: 3, backgroundColor: "#fafafa" }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {/* Error Alert */}
           <Fade in={!!error}>
             <Box>
               {error && (
@@ -211,7 +207,6 @@ export default function CreateFormDialog({ open, onClose, onSubmit }) {
             </Box>
           </Fade>
 
-          {/* Form Details Section */}
           <Paper elevation={2} sx={{ p: 3, borderRadius: 3 }}>
             <Box display="flex" alignItems="center" gap={1} mb={3}>
               <Assignment sx={{ color: "#667eea", fontSize: 24 }} />

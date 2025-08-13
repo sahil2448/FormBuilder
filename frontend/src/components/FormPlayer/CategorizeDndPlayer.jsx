@@ -291,7 +291,6 @@ export default function CategorizeDndPlayer({ question, value, onChange }) {
         backgroundColor: "#fafafa",
       }}
     >
-      {/* Enhanced Header */}
       <Box display="flex" alignItems="center" gap={1} mb={2}>
         <Category sx={{ color: "#2196f3", fontSize: 28 }} />
         <Box flex={1}>
@@ -322,7 +321,6 @@ export default function CategorizeDndPlayer({ question, value, onChange }) {
         </Tooltip>
       </Box>
 
-      {/* Progress Indicator */}
       <Box sx={{ mb: 3 }}>
         <Box
           display="flex"
@@ -391,7 +389,6 @@ export default function CategorizeDndPlayer({ question, value, onChange }) {
                 },
               }}
             >
-              {/* Pool Column */}
               <DroppableColumn
                 id="pool"
                 title="Unassigned Items"
@@ -410,7 +407,6 @@ export default function CategorizeDndPlayer({ question, value, onChange }) {
                 </SortableContext>
               </DroppableColumn>
 
-              {/* Category Columns */}
               {categories.map((cat) => (
                 <DroppableColumn
                   key={cat.categoryId}
@@ -462,7 +458,6 @@ export default function CategorizeDndPlayer({ question, value, onChange }) {
         </Box>
       </Fade>
 
-      {/* Enhanced Footer */}
       <Box
         display="flex"
         justifyContent="space-between"

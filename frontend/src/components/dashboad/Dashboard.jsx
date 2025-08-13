@@ -107,7 +107,6 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header Section */}
       <Paper
         elevation={3}
         sx={{
@@ -176,7 +175,6 @@ const Dashboard = () => {
           </Box>
         </Box>
 
-        {/* Stats */}
         <Box display="flex" gap={3} mt={3} flexWrap="wrap">
           <Chip
             label={`${forms.length} Total Forms`}
@@ -223,7 +221,6 @@ const Dashboard = () => {
         </Box>
       </Fade>
 
-      {/* Forms Content */}
       <Paper
         elevation={2}
         sx={{

@@ -61,7 +61,6 @@ export default function ComprehensionPlayer({ question, value, onChange }) {
         transition: "all 0.3s ease-in-out",
       }}
     >
-      {/* Enhanced Header */}
       <Box display="flex" alignItems="center" gap={1} mb={2}>
         <MenuBook sx={{ color: "#ff9800", fontSize: 28 }} />
         <Box flex={1}>
@@ -87,7 +86,6 @@ export default function ComprehensionPlayer({ question, value, onChange }) {
         </Tooltip>
       </Box>
 
-      {/* Progress Indicator */}
       <Box sx={{ mb: 3 }}>
         <Box
           display="flex"
@@ -125,7 +123,6 @@ export default function ComprehensionPlayer({ question, value, onChange }) {
         </Box>
       </Box>
 
-      {/* Enhanced Passage Section */}
       {question.passage && (
         <Paper
           elevation={2}
@@ -413,7 +410,6 @@ export default function ComprehensionPlayer({ question, value, onChange }) {
         </Box>
       </Fade>
 
-      {/* Enhanced Footer */}
       <Box
         display="flex"
         justifyContent="space-between"

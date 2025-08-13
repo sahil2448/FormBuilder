@@ -250,7 +250,6 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
         </IconButton>
       </DialogTitle>
 
-      {/* Loading Progress Bar */}
       {loading && (
         <LinearProgress
           sx={{
@@ -264,7 +263,6 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
 
       <DialogContent sx={{ p: 3, backgroundColor: "#fafafa" }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {/* Error Alert */}
           <Fade in={!!error}>
             <Box>
               {error && (
@@ -279,7 +277,6 @@ const AddQuestionDialog = ({ open, onClose, onSubmit, formId }) => {
             </Box>
           </Fade>
 
-          {/* Question Type Selection */}
           <Paper elevation={2} sx={{ p: 2, borderRadius: 2 }}>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
               Choose Question Type

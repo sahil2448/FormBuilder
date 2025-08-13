@@ -30,7 +30,6 @@ const AuthPage = () => {
       const response = await axios.post(endpoint, formData);
       console.log(response.data, response);
 
-      // Axios stores response data in response.data
       const data = response.data;
 
       if (data.token !== "undefined" && data.success === true) {
@@ -40,7 +39,6 @@ const AuthPage = () => {
     } catch (err) {
       console.error(err);
 
-      // Handle axios error response
       if (err.response && err.response.data) {
         alert(err.response.data.message || "Something went wrong");
       } else {
@@ -87,7 +85,7 @@ const AuthPage = () => {
           />
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 cursor-pointer text-white p-3 rounded-lg hover:bg-blue-700 transition"
           >
             {isSignUp ? "Sign Up" : "Sign In"}
           </button>

@@ -36,11 +36,9 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = React.useState(false);
 
-  // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
 
-  // Fix the toggle issue by checking token on mount and route changes
   React.useEffect(() => {
     const checkAuthStatus = () => {
       const token = localStorage.getItem("token");
@@ -50,7 +48,6 @@ export default function Navbar() {
     checkAuthStatus();
   }, [location.pathname]);
 
-  // Listen for storage changes (cross-tab sync)
   React.useEffect(() => {
     const handleStorageChange = () => {
       const token = localStorage.getItem("token");
@@ -63,7 +60,6 @@ export default function Navbar() {
     };
   }, []);
 
-  // Listen for custom login events (for same-tab updates)
   React.useEffect(() => {
     const handleLoginEvent = () => {
       const token = localStorage.getItem("token");
@@ -79,23 +75,23 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    setMobileDrawerOpen(false); // Close drawer on logout
+    setMobileDrawerOpen(false);
     window.dispatchEvent(new Event("authStateChange"));
     routeTo("/login");
   };
 
   const handleLogin = () => {
-    setMobileDrawerOpen(false); // Close drawer on login
+    setMobileDrawerOpen(false);
     routeTo("/login");
   };
 
   const handleDashboard = () => {
-    setMobileDrawerOpen(false); // Close drawer on navigation
+    setMobileDrawerOpen(false);
     routeTo("/dashboard");
   };
 
   const handleHome = () => {
-    setMobileDrawerOpen(false); // Close drawer on navigation
+    setMobileDrawerOpen(false);
     routeTo("/");
   };
 
@@ -107,10 +103,8 @@ export default function Navbar() {
   const isOnLogin = location.pathname === "/login";
   const isOnHome = location.pathname === "/";
 
-  // Mobile Drawer Content
   const drawerContent = (
     <Box sx={{ width: 280 }} role="presentation">
-      {/* Drawer Header */}
       <Box
         sx={{
           p: 2,
@@ -132,7 +126,6 @@ export default function Navbar() {
         </IconButton>
       </Box>
 
-      {/* User Status */}
       <Box sx={{ p: 2, backgroundColor: "#f8f9fa" }}>
         <Box display="flex" alignItems="center" gap={2}>
           <Avatar
@@ -164,7 +157,6 @@ export default function Navbar() {
 
       <Divider />
 
-      {/* Navigation Items */}
       <List sx={{ px: 1, py: 2 }}>
         <ListItem disablePadding>
           <ListItemButton
@@ -217,7 +209,6 @@ export default function Navbar() {
 
       <Divider />
 
-      {/* Auth Actions */}
       <Box sx={{ p: 2 }}>
         {isLoggedIn ? (
           <Button
@@ -272,7 +263,6 @@ export default function Navbar() {
         }}
       >
         <Toolbar sx={{ py: { xs: 0.5, sm: 1 }, minHeight: { xs: 56, sm: 64 } }}>
-          {/* Mobile Menu Button */}
           {isMobile && (
             <Tooltip title="Menu">
               <IconButton
@@ -295,7 +285,6 @@ export default function Navbar() {
             </Tooltip>
           )}
 
-          {/* Enhanced Logo/Title - Responsive */}
           <Box
             display="flex"
             alignItems="center"
@@ -303,7 +292,7 @@ export default function Navbar() {
             sx={{
               flexGrow: 1,
               cursor: "pointer",
-              minWidth: 0, // Allow shrinking
+              minWidth: 0,
             }}
             onClick={() => routeTo("/")}
           >
@@ -318,7 +307,6 @@ export default function Navbar() {
                   opacity: 0.9,
                 },
                 transition: "opacity 0.2s ease-in-out",
-                // Hide text on very small screens if needed
                 display: { xs: "block", xxs: "none" },
                 fontSize: { xs: "1.1rem", sm: "1.5rem" },
               }}
@@ -327,12 +315,10 @@ export default function Navbar() {
             </Typography>
           </Box>
 
-          {/* Desktop Navigation */}
           {!isMobile && (
             <Box display="flex" alignItems="center" gap={{ sm: 1, md: 2 }}>
               {isLoggedIn ? (
                 <>
-                  {/* Dashboard Button (only show if not on dashboard) */}
                   {!isOnDashboard && (
                     <Tooltip title="Go to Dashboard">
                       <Button
@@ -362,7 +348,6 @@ export default function Navbar() {
                     </Tooltip>
                   )}
 
-                  {/* User Avatar - Hidden on small tablets */}
                   {!isTablet && (
                     <Tooltip title="Logged in user">
                       <Avatar
@@ -378,7 +363,6 @@ export default function Navbar() {
                     </Tooltip>
                   )}
 
-                  {/* Status Chip - Responsive sizing */}
                   <Chip
                     icon={<Person />}
                     label="Online"
@@ -392,7 +376,6 @@ export default function Navbar() {
                     }}
                   />
 
-                  {/* Logout Button */}
                   <Tooltip title="Logout">
                     <Button
                       color="inherit"
@@ -422,7 +405,6 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  {/* Login Status Chip */}
                   <Chip
                     icon={<Person />}
                     label="Guest"
@@ -436,7 +418,6 @@ export default function Navbar() {
                     }}
                   />
 
-                  {/* Login Button */}
                   <Tooltip title="Login to access your forms">
                     <Button
                       color="inherit"
@@ -468,7 +449,6 @@ export default function Navbar() {
             </Box>
           )}
 
-          {/* Mobile: Show only avatar and status */}
           {isMobile && isLoggedIn && (
             <Box display="flex" alignItems="center" gap={1}>
               <Chip
@@ -511,13 +491,12 @@ export default function Navbar() {
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Drawer */}
       <Drawer
         anchor="left"
         open={mobileDrawerOpen}
         onClose={toggleMobileDrawer}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile
+          keepMounted: true,
         }}
         PaperProps={{
           sx: {

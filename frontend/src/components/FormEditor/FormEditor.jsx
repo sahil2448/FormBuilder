@@ -143,7 +143,6 @@ const FormEditor = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header Section */}
       <Paper
         elevation={3}
         sx={{
@@ -254,7 +253,6 @@ const FormEditor = () => {
           </Box>
         </Box>
 
-        {/* Stats Row */}
         <Box display="flex" gap={2} mt={3} flexWrap="wrap">
           <Chip
             icon={<Quiz />}
@@ -300,7 +298,6 @@ const FormEditor = () => {
         </Box>
       </Paper>
 
-      {/* Error Alert */}
       <Fade in={!!error}>
         <Box sx={{ mb: 3 }}>
           {error && (
@@ -318,7 +315,6 @@ const FormEditor = () => {
         </Box>
       </Fade>
 
-      {/* Main Content */}
       <Paper
         elevation={2}
         sx={{
@@ -327,7 +323,6 @@ const FormEditor = () => {
           border: "1px solid rgba(0,0,0,0.05)",
         }}
       >
-        {/* Enhanced Tabs */}
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
             value={tabValue}
@@ -351,7 +346,6 @@ const FormEditor = () => {
           </Tabs>
         </Box>
 
-        {/* Tab Content */}
         <Box sx={{ p: 3, backgroundColor: "#fafafa", minHeight: 400 }}>
           {tabValue === 0 && (
             <Box>

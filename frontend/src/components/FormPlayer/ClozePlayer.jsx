@@ -209,7 +209,6 @@ export default function ClozePlayer({ question, value, onChange }) {
         transition: "all 0.3s ease-in-out",
       }}
     >
-      {/* Enhanced Header */}
       <Box display="flex" alignItems="center" gap={1} mb={2}>
         <TextFields sx={{ color: "#4caf50", fontSize: 28 }} />
         <Box flex={1}>
@@ -242,7 +241,6 @@ export default function ClozePlayer({ question, value, onChange }) {
         </Tooltip>
       </Box>
 
-      {/* Progress Indicator */}
       <Box sx={{ mb: 3 }}>
         <Box
           display="flex"
@@ -280,7 +278,6 @@ export default function ClozePlayer({ question, value, onChange }) {
         </Box>
       </Box>
 
-      {/* Enhanced Passage Section */}
       <Fade in timeout={300}>
         <Paper
           elevation={1}
@@ -302,7 +299,6 @@ export default function ClozePlayer({ question, value, onChange }) {
         </Paper>
       </Fade>
 
-      {/* Enhanced Footer */}
       <Box
         display="flex"
         justifyContent="space-between"
